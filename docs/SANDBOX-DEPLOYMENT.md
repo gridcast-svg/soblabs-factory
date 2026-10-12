@@ -10,7 +10,7 @@ The app continues to store sandbox project data in each browser. It has no share
 
 ## Render setup
 
-1. Make the application source available to the hosting account through the GitHub repository. The current application source is local; it has not been pushed by this deployment task.
+1. The application source is available on `main` in `gridcast-svg/soblabs-factory`. Connect that GitHub repository to the hosting account.
 2. In Render, connect the repository and create a web service using the included `render.yaml`, or use its equivalent settings. The proposed free plan is for review and may suspend while idle; confirm current availability and limits in the account. No paid plan or subscription has been created.
 3. Enter `SANDBOX_USERNAME` and a unique random `SANDBOX_PASSWORD` of at least 16 characters securely in Render environment settings. Do not send credentials in chat or commit them. These are raw runtime values entered at the host, not outbound proxy-secret placeholders.
 4. Use Node 24.19.0. Build with `npm ci --include=dev && npm run build`. Start with `npm run start:sandbox`. Render supplies `PORT`; HTTPS terminates at the host. The host health check is `/healthz`.
