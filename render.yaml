@@ -1,0 +1,19 @@
+# Proposed Render sandbox. Review plan and account settings before deployment.
+services:
+  - type: web
+    name: soblabs-factory-sandbox
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run start:sandbox
+    healthCheckPath: /healthz
+    autoDeployTrigger: "off"
+    envVars:
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: NODE_ENV
+        value: production
+      - key: SANDBOX_USERNAME
+        sync: false
+      - key: SANDBOX_PASSWORD
+        sync: false
