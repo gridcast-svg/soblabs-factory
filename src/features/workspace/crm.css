@@ -1,0 +1,123 @@
+.crm-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #ffffff12;
+  margin: 24px 0 20px;
+  overflow: auto;
+}
+.crm-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 17px;
+  color: #889ab1;
+  font-size: 12px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.crm-tabs button[aria-selected="true"] {
+  color: var(--ws-cyan);
+  border-color: var(--ws-cyan);
+  background: #87e5e905;
+}
+.crm-tabs span {
+  font-size: 9px;
+  border-radius: 5px;
+  background: #ffffff07;
+  padding: 2px 6px;
+}
+.crm-toolbar select {
+  width: 160px !important;
+  font-size: 11px !important;
+}
+.crm-deal-pipeline {
+  grid-template-columns: repeat(6, minmax(175px, 1fr));
+  overflow: auto;
+  padding-bottom: 8px;
+}
+.crm-deal-pipeline .ws-pipeline-column {
+  min-height: 330px;
+}
+.crm-deal-pipeline .ws-contact-card b {
+  color: var(--ws-cyan);
+  font-weight: 500;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.crm-record-modal,
+.crm-import-modal {
+  width: 900px;
+}
+.crm-import-summary {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 15px;
+}
+.crm-import-table {
+  max-height: 320px;
+  overflow: auto;
+  margin: 18px 0;
+}
+.crm-import-table th {
+  position: sticky;
+  top: 0;
+  background: #1c293a;
+}
+.crm-error {
+  color: #f2acb8 !important;
+  border-color: #f2acb866 !important;
+}
+.crm-related {
+  border-top: 1px solid #ffffff14;
+  margin: 22px 0;
+  padding-top: 18px;
+}
+.crm-related p {
+  font-size: 11px;
+  color: #8fa2b9;
+  margin: 12px 0;
+}
+.crm-related > .ws-text-button {
+  display: flex;
+  margin: 10px 0;
+}
+.crm-related details {
+  margin: 18px 0;
+  font-size: 11px;
+  color: #8fa2b9;
+}
+.crm-related dl {
+  padding: 12px;
+  border: 1px solid #ffffff12;
+  max-height: 220px;
+  overflow: auto;
+}
+.crm-related dl div {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px;
+  padding: 8px;
+  border-bottom: 1px solid #ffffff0b;
+}
+.crm-related dd {
+  color: #bbcadc;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 850px) {
+  .crm-toolbar {
+    flex-wrap: wrap;
+  }
+  .crm-toolbar input {
+    flex-basis: 80%;
+  }
+  .crm-toolbar select {
+    flex: 1;
+  }
+  .crm-tabs button {
+    padding: 12px;
+  }
+  .crm-related dl div {
+    grid-template-columns: 1fr;
+  }
+}

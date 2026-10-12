@@ -53,7 +53,7 @@ export function WorkspaceProvider({
           if (error) throw error;
           initial = data
             ? stateSchema.parse(data.state)
-            : { version: 1, projects: [blankProject()], contacts: [] };
+            : stateSchema.parse({ version: 1, projects: [blankProject()], contacts: [] });
           version.current = data?.revision ?? 0;
         }
         if (alive) {
@@ -71,7 +71,7 @@ export function WorkspaceProvider({
     };
   }, [mode]);
   function persist(next: WorkspaceState) {
-    stateSchema.parse(next);
+    next = stateSchema.parse(next);
     if (error) throw new Error(error);
     if (state) setHistory((h) => [...h.slice(-29), state]);
     setRaw(next);

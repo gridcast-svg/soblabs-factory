@@ -11,7 +11,7 @@ npm ci
 npm run dev -- --host 0.0.0.0 --port 3000
 ```
 
-The root route is a clearly labelled local design sandbox with fictional example equipment. It supports projects, CRM contacts, BOM editing and Excel import/export, schematic and rack design, LED geometry, and manual PLAUD PDF intake.
+The root route is a clearly labelled local design sandbox with fictional example equipment. It supports projects, CRM accounts/contacts/leads/deals/activities with Zoho account imports, BOM editing and Excel import/export, schematic and rack design, LED geometry, and manual PLAUD PDF intake.
 
 The account workspace requires Supabase configuration, database migrations, an active account and authenticator MFA. No backend credentials are included. Microsoft 365, SharePoint sync, daily CRM automation, purchasing, and team sharing remain to be implemented.
 
@@ -26,3 +26,5 @@ npm run build
 ```
 
 The supplied application’s original [LED specification](docs/ORIGINAL-LED-SPEC.md) is retained for reference.
+
+See [CRM workflows and import behavior](docs/CRM.md) for the new modules and data requirements.

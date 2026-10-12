@@ -428,8 +428,30 @@ function Projects({ navigate }: { navigate: (p: Page) => void }) {
             />
           </label>
           <label>
+            CRM account
+            <select
+              value={project.accountId ?? ""}
+              onChange={(e) => {
+                const id = e.target.value || null;
+                updateProject({
+                  ...project,
+                  accountId: id,
+                  customer: state.accounts.find((a) => a.id === id)?.name ?? project.customer,
+                });
+              }}
+            >
+              <option value="">Not linked</option>
+              {state.accounts.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
             Customer / Company
             <input
+              disabled={!!project.accountId}
               value={project.customer}
               onChange={(e) => updateProject({ ...project, customer: e.target.value })}
             />

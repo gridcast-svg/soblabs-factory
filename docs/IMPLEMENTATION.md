@@ -20,7 +20,7 @@ For a built Node production server, run `npm run build`, then `PORT=3001 HOST=0.
 ## Implemented workflows
 
 - Projects, stage and currency settings, customer labels, and follow-up tasks.
-- Contact pipeline and manual contact editing.
+- CRM accounts, contacts, leads, deals and activities; reviewed Zoho account imports, account exports, search/filtering, lead conversion and won-deal project handoff. See [CRM details](CRM.md).
 - BOM editing, quantity units, per-item currency/FX/markup/tax, optional costs, alternatives, and calculated totals. Missing costs/FX prevent complete pricing.
 - XLSX template download, previewed import, export and reimport. Item IDs preserve identity; reimports retain drawing ports/rack definitions and omitted items. Legacy HOEM-style tabs import as alternatives with unknown FX so scope/currency/labour units must be checked. Workbook summary rows are ignored.
 - SVG schematic canvas with zoom/pan, grid snapping, equipment ports, directed connections, editable cable IDs/types/lengths, cable schedule, and cable-to-BOM mapping.
@@ -64,4 +64,4 @@ npm run build
 
 Browser tests require a running development server and Chromium. `PLAYWRIGHT_CHROMIUM_EXECUTABLE` selects an installed Chromium; otherwise install Playwright Chromium through its supported installer. Tests generate synthetic XLSX/PDF fixtures by default. Set `SOBLABS_LEGACY_BOM` and `SOBLABS_PLAUD_PDF` to private sample paths to exercise the supplied user files without committing them.
 
-The first implementation was tested with the user's HOEM workbook and PLAUD PDF. Browser tests check project/BOM persistence, drawing/rack identity, imports, reviewed actions, idempotent cabinet generation, Excel round-trip and unconfigured-login behavior. Model tests cover pricing, missing inputs, alternatives, tax, reconciliation, deletion and backup validation. A PostgreSQL/PGlite test runs the new migration against representative prerequisite tables and tests MFA, ownership, active status and save conflicts.
+The first implementation was tested with the user's HOEM workbook and PLAUD PDF. Browser tests check project/BOM persistence, drawing/rack identity, imports, reviewed actions, idempotent cabinet generation, Excel round-trip and unconfigured-login behavior. Model tests cover pricing, missing inputs, alternatives, tax, reconciliation, deletion, backup validation and CRM import/migration workflows. A PostgreSQL/PGlite test runs the new migration against representative prerequisite tables and tests MFA, ownership, active status and save conflicts.

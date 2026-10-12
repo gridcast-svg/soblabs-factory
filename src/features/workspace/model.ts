@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { accountSchema, contactSchema, dealSchema, activitySchema } from "./crm-model";
+export type { Account, Contact, Deal, Activity } from "./crm-model";
 
 const finite = z.number().finite();
 const money = finite.nonnegative().nullable();
@@ -53,15 +55,6 @@ const connectionSchema = z.object({
   bomItemId: z.string().nullable(),
 });
 export type Connection = z.infer<typeof connectionSchema>;
-const contactSchema = z.object({
-  id: z.string(),
-  company: z.string(),
-  name: z.string(),
-  email: z.string(),
-  stage: z.enum(["Lead", "Qualified", "Proposal", "Won", "Lost"]),
-  notes: z.string(),
-});
-export type Contact = z.infer<typeof contactSchema>;
 const meetingSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -93,6 +86,7 @@ export const projectSchema = z.object({
   id: z.string(),
   name: z.string(),
   customer: z.string(),
+  accountId: z.string().nullable().default(null),
   stage: z.enum(["Discovery", "Design", "Proposal", "Procurement", "Installation", "Complete"]),
   currency: z.enum(["CAD", "USD"]),
   taxRate: finite.min(0).max(100),
@@ -110,16 +104,44 @@ export const stateSchema = z
     version: z.literal(1),
     projects: z.array(projectSchema).min(1),
     contacts: z.array(contactSchema),
+    accounts: z.array(accountSchema).default([]),
+    deals: z.array(dealSchema).default([]),
+    activities: z.array(activitySchema).default([]),
   })
   .superRefine((state, ctx) => {
     for (const [label, entries] of [
       ["projects", state.projects],
       ["contacts", state.contacts],
+      ["accounts", state.accounts],
+      ["deals", state.deals],
+      ["activities", state.activities],
     ] as const) {
       if (new Set(entries.map((x) => x.id)).size !== entries.length)
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Duplicate ${label} IDs` });
     }
+    const check = (value: string | null, entries: { id: string }[], label: string) => {
+      if (value && !entries.some((x) => x.id === value))
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Missing linked ${label}` });
+    };
+    for (const c of state.contacts) check(c.accountId, state.accounts, "account");
+    for (const d of state.deals) {
+      check(d.accountId, state.accounts, "account");
+      check(d.contactId, state.contacts, "contact");
+      check(d.projectId, state.projects, "project");
+    }
+    for (const a of state.activities) {
+      check(a.accountId, state.accounts, "account");
+      check(a.contactId, state.contacts, "contact");
+      check(a.dealId, state.deals, "deal");
+      check(a.projectId, state.projects, "project");
+    }
+    const zohoIds = state.accounts
+      .filter((a) => a.source === "Zoho" && a.sourceId)
+      .map((a) => a.sourceId);
+    if (new Set(zohoIds).size !== zohoIds.length)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate Zoho account IDs" });
     for (const p of state.projects) {
+      check(p.accountId, state.accounts, "account");
       for (const entries of [p.items, p.devices, p.connections, p.meetings, p.tasks])
         if (new Set(entries.map((x) => x.id)).size !== entries.length)
           ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate project record IDs" });
@@ -182,6 +204,7 @@ export function blankProject(name = "Untitled project"): Project {
     id: uid(),
     name,
     customer: "",
+    accountId: null,
     stage: "Discovery",
     currency: "CAD",
     taxRate: 0,
@@ -269,7 +292,7 @@ export function exampleState(): WorkspaceState {
       sourceMeetingId: null,
     },
   ];
-  return { version: 1, projects: [p], contacts: [] };
+  return stateSchema.parse({ version: 1, projects: [p], contacts: [] });
 }
 const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 export function linePrice(i: BomItem, projectCurrency: string) {
