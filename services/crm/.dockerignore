@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+!.env.example
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/.eve
+**/.output
+**/coverage
+**/.logs
+**/src/generated/prisma
+.agents
+.claude
+.githooks

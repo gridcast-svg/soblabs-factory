@@ -1,0 +1,74 @@
+databases:
+  - name: soblabs-crm-sandbox-db
+    plan: free
+    databaseName: soblabs_crm_sandbox
+    user: soblabs_crm
+services:
+  - type: web
+    name: soblabs-crm-api-sandbox
+    runtime: docker
+    branch: codex/crm-render-pilot
+    plan: free
+    dockerfilePath: ./services/crm/Dockerfile.api
+    dockerContext: ./services/crm
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: soblabs-crm-sandbox-db
+          property: connectionString
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: ALLOWED_SIGN_IN
+        value: shawn@soblabs.ca
+      - key: MICROSOFT_CLIENT_ID
+        value: 7876357c-f916-4a7b-a927-207ee479d824
+      - key: MICROSOFT_TENANT_ID
+        value: 6e251351-5ca8-49aa-9167-872b0e540566
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: API_URL
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: AUTH_COOKIE_DOMAIN
+        value: .soblabs.ca
+      - key: CRM_TELEMETRY_DISABLED
+        value: "1"
+  - type: web
+    name: soblabs-crm-web-sandbox
+    runtime: docker
+    branch: codex/crm-render-pilot
+    plan: free
+    dockerfilePath: ./services/crm/Dockerfile.web
+    dockerContext: ./services/crm
+    healthCheckPath: /sign-in
+    autoDeployTrigger: "off"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: soblabs-crm-sandbox-db
+          property: connectionString
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: ALLOWED_SIGN_IN
+        value: shawn@soblabs.ca
+      - key: MICROSOFT_CLIENT_ID
+        value: 7876357c-f916-4a7b-a927-207ee479d824
+      - key: MICROSOFT_TENANT_ID
+        value: 6e251351-5ca8-49aa-9167-872b0e540566
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: API_URL
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: AUTH_COOKIE_DOMAIN
+        value: .soblabs.ca
+      - key: CRM_TELEMETRY_DISABLED
+        value: "1"
