@@ -65,3 +65,7 @@ npm run build
 Browser tests require a running development server and Chromium. `PLAYWRIGHT_CHROMIUM_EXECUTABLE` selects an installed Chromium; otherwise install Playwright Chromium through its supported installer. Tests generate synthetic XLSX/PDF fixtures by default. Set `SOBLABS_LEGACY_BOM` and `SOBLABS_PLAUD_PDF` to private sample paths to exercise the supplied user files without committing them.
 
 The first implementation was tested with the user's HOEM workbook and PLAUD PDF. Browser tests check project/BOM persistence, drawing/rack identity, imports, reviewed actions, idempotent cabinet generation, Excel round-trip and unconfigured-login behavior. Model tests cover pricing, missing inputs, alternatives, tax, reconciliation, deletion, backup validation and CRM import/migration workflows. A PostgreSQL/PGlite test runs the new migration against representative prerequisite tables and tests MFA, ownership, active status and save conflicts.
+
+## LED product browser
+
+The workspace LED tool now includes setup, product search/filter/group/card views, reviewed manufacturer PDF uploads, spreadsheet imports, saved specification snapshots and BOM updates. See [LED product library](LED-PRODUCT-LIBRARY.md) for formats, limits and the distinction from the global administrator catalogue.

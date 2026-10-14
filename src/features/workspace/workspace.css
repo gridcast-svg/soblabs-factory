@@ -1328,3 +1328,20 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .ws-topbar {
+    height: auto;
+    min-height: 74px;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 20px;
+  }
+  .ws-breadcrumb {
+    flex-basis: 100%;
+  }
+  .ws-topbar-actions {
+    max-width: 100%;
+    margin-left: auto;
+  }
+}

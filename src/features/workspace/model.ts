@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ledProductSchema } from "./led-products";
 import { zohoId, zohoSnapshotSchema } from "./zoho-model";
 import { accountSchema, contactSchema, dealSchema, activitySchema } from "./crm-model";
 export type { Account, Contact, Deal, Activity } from "./crm-model";
@@ -75,6 +76,11 @@ const taskSchema = z.object({
 });
 export type Task = z.infer<typeof taskSchema>;
 const ledSchema = z.object({
+  product: ledProductSchema.optional(),
+  sizingMode: z.enum(["wall", "desired"]).optional(),
+  unit: z.enum(["mm", "m", "ft"]).optional(),
+  clearanceX: finite.nonnegative().optional(),
+  clearanceY: finite.nonnegative().optional(),
   width: finite.positive(),
   height: finite.positive(),
   cabinetWidth: finite.positive(),
@@ -104,6 +110,7 @@ export type Project = z.infer<typeof projectSchema>;
 export const stateSchema = z
   .object({
     version: z.literal(1),
+    ledProducts: z.array(ledProductSchema).max(500).optional(),
     zohoSnapshot: zohoSnapshotSchema.optional(),
     projects: z.array(projectSchema).min(1),
     contacts: z.array(contactSchema),
