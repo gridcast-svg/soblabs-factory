@@ -112,6 +112,8 @@ test("PLAUD PDF extraction proposes the three source action items without invent
 test("LED cabinet update is idempotent and exports modern workbook", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "LED configurator", exact: true }).click();
+  await page.getByRole("button", { name: "Browse products", exact: true }).click();
+  await page.getByRole("button", { name: "Select product", exact: true }).click();
   await page.getByLabel("I have checked the specifications for this layout.").check();
   await page.getByRole("button", { name: "Update project BOM" }).click();
   await page.getByRole("button", { name: "Update project BOM" }).click();
