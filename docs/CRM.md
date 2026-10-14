@@ -1,5 +1,9 @@
 # Soblabs Factory CRM
 
+## Current direction: Zoho dashboard
+
+Factory now opens a read-only Zoho sales dashboard. Zoho remains the source for customer and sales records; Factory owns delivery projects. See [connection setup and behavior](ZOHO-DASHBOARD.md). The workflows below remain available under **Previously saved Factory CRM records** for compatibility; they are separate from the Zoho snapshot. No Comp AI CRM deployment is needed.
+
 ## Core workflows
 
 The CRM now has separate Accounts, Contacts, Leads, Deals, and Activities modules. Accounts hold company details, billing address, industry, type and ownership; related people, deals, activities and projects appear in the account editor.

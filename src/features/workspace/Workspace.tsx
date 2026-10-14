@@ -25,7 +25,8 @@ import { Bom, Metric } from "./Bom";
 import { formatMoney } from "./format";
 import { Designer } from "./Designer";
 import { Meetings } from "./Meetings";
-import { Crm } from "./Crm";
+import { ZohoDashboard } from "./ZohoDashboard";
+import { zohoRecordUrl } from "./zoho-model";
 import { Led } from "./Led";
 import { blankProject, reconcile, totals, uid, stateSchema } from "./model";
 import { download } from "./files";
@@ -163,7 +164,7 @@ function WorkspaceShell() {
           ) : page === "meetings" ? (
             <Meetings />
           ) : page === "crm" ? (
-            <Crm />
+            <ZohoDashboard onOpenProject={() => setPage("projects")} />
           ) : (
             <Settings />
           )}
@@ -361,7 +362,7 @@ function Overview({ navigate }: { navigate: (p: Page) => void }) {
   );
 }
 function Projects({ navigate }: { navigate: (p: Page) => void }) {
-  const { state, setState, project, selectProject, updateProject } = useWorkspace();
+  const { state, setState, project, selectProject, updateProject, mode } = useWorkspace();
   const [name, setName] = useState("");
   return (
     <>
@@ -419,6 +420,17 @@ function Projects({ navigate }: { navigate: (p: Page) => void }) {
       </div>
       <div className="ws-card ws-spaced">
         <h3>Current project settings</h3>
+        {mode === "account" && project.zohoDealId && state.zohoSnapshot && (
+          <p>
+            <a
+              href={zohoRecordUrl(state.zohoSnapshot, "Deals", project.zohoDealId)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open linked deal in Zoho <ArrowUpRight size={14} />
+            </a>
+          </p>
+        )}
         <div className="ws-form-grid">
           <label>
             Project name
@@ -584,6 +596,13 @@ function Settings() {
           </div>
         </div>
         {[
+          {
+            name: "Zoho CRM",
+            description:
+              "Read-only sales dashboard with links to Zoho and Factory projects. Open CRM to refresh after connection setup.",
+            needs:
+              "Requires secure account mode and server-side Zoho authorization. No AI subscription required.",
+          },
           {
             name: "Microsoft 365",
             description:

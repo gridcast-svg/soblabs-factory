@@ -20,7 +20,7 @@ For a built Node production server, run `npm run build`, then `PORT=3001 HOST=0.
 ## Implemented workflows
 
 - Projects, stage and currency settings, customer labels, and follow-up tasks.
-- CRM accounts, contacts, leads, deals and activities; reviewed Zoho account imports, account exports, search/filtering, lead conversion and won-deal project handoff. See [CRM details](CRM.md).
+- Read-only Zoho CRM dashboard, manual secure refresh, source links, and deal-to-project links. See [Zoho setup](ZOHO-DASHBOARD.md). Legacy CRM accounts, contacts, leads, deals and activities; reviewed Zoho account imports, account exports, search/filtering, lead conversion and won-deal project handoff. See [CRM details](CRM.md).
 - BOM editing, quantity units, per-item currency/FX/markup/tax, optional costs, alternatives, and calculated totals. Missing costs/FX prevent complete pricing.
 - XLSX template download, previewed import, export and reimport. Item IDs preserve identity; reimports retain drawing ports/rack definitions and omitted items. Legacy HOEM-style tabs import as alternatives with unknown FX so scope/currency/labour units must be checked. Workbook summary rows are ignored.
 - SVG schematic canvas with zoom/pan, grid snapping, equipment ports, directed connections, editable cable IDs/types/lengths, cable schedule, and cable-to-BOM mapping.
