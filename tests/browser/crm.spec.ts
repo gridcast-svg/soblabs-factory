@@ -3,6 +3,9 @@ import { blankProject } from "../../src/features/workspace/model";
 async function openCrm(page: import("@playwright/test").Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "CRM", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Previously saved Factory CRM records", exact: true })
+    .click();
 }
 test("Zoho account import is previewed, preserves long IDs, and deduplicates repeated imports", async ({
   page,
@@ -27,6 +30,9 @@ test("Zoho account import is previewed, preserves long IDs, and deduplicates rep
   await page.getByRole("button", { name: "Save account", exact: true }).click();
   await page.reload();
   await page.getByRole("button", { name: "CRM", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Previously saved Factory CRM records", exact: true })
+    .click();
   await expect(page.getByRole("button", { name: "Renamed Systems", exact: true })).toBeVisible();
 });
 test("lead conversion creates account/contact/deal and a won deal creates a linked project", async ({

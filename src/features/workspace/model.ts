@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { zohoId, zohoSnapshotSchema } from "./zoho-model";
 import { accountSchema, contactSchema, dealSchema, activitySchema } from "./crm-model";
 export type { Account, Contact, Deal, Activity } from "./crm-model";
 
@@ -87,6 +88,7 @@ export const projectSchema = z.object({
   name: z.string(),
   customer: z.string(),
   accountId: z.string().nullable().default(null),
+  zohoDealId: zohoId.optional(),
   stage: z.enum(["Discovery", "Design", "Proposal", "Procurement", "Installation", "Complete"]),
   currency: z.enum(["CAD", "USD"]),
   taxRate: finite.min(0).max(100),
@@ -102,6 +104,7 @@ export type Project = z.infer<typeof projectSchema>;
 export const stateSchema = z
   .object({
     version: z.literal(1),
+    zohoSnapshot: zohoSnapshotSchema.optional(),
     projects: z.array(projectSchema).min(1),
     contacts: z.array(contactSchema),
     accounts: z.array(accountSchema).default([]),
@@ -135,6 +138,12 @@ export const stateSchema = z
       check(a.dealId, state.deals, "deal");
       check(a.projectId, state.projects, "project");
     }
+    const projectDealIds = state.projects.map((p) => p.zohoDealId).filter(Boolean);
+    if (new Set(projectDealIds).size !== projectDealIds.length)
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "A Zoho deal can link to only one Factory project",
+      });
     const zohoIds = state.accounts
       .filter((a) => a.source === "Zoho" && a.sourceId)
       .map((a) => a.sourceId);
