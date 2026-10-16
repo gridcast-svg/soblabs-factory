@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { avGeometrySchema, avLibrarySchema, avPointSchema, avWireSchema } from "./av-schema";
 import { accountSchema, contactSchema, dealSchema, activitySchema } from "./crm-model";
+import { ledGeometrySchema, ledPlannerSchema } from "./led-schema";
 export type { Account, Contact, Deal, Activity } from "./crm-model";
 
 const finite = z.number().finite();
@@ -141,15 +142,21 @@ const taskSchema = z.object({
   sourceMeetingId: z.string().nullable(),
 });
 export type Task = z.infer<typeof taskSchema>;
-const ledSchema = z.object({
-  width: finite.positive(),
-  height: finite.positive(),
-  cabinetWidth: finite.positive(),
-  cabinetHeight: finite.positive(),
-  pixelWidth: finite.int().positive(),
-  pixelHeight: finite.int().positive(),
-  costPerSqm: money,
+const ledDesignSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().trim().min(1).max(120),
+  createdAt: z.string().datetime(),
+  bomRevision: z.number().int().positive(),
+  bomSnapshotId: z.string().min(1),
+  projectName: z.string(),
+  customer: z.string(),
+  currency: z.enum(["CAD", "USD"]),
+  taxRate: finite.min(0).max(100),
+  geometry: ledGeometrySchema,
+  config: ledPlannerSchema,
+  items: z.array(itemSchema),
 });
+export type LedDesign = z.infer<typeof ledDesignSchema>;
 export const projectSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -167,7 +174,9 @@ export const projectSchema = z.object({
   drawingSets: z.array(drawingSetSchema).default([]),
   meetings: z.array(meetingSchema),
   tasks: z.array(taskSchema),
-  led: ledSchema,
+  led: ledGeometrySchema,
+  ledPlanner: ledPlannerSchema.default({}),
+  ledDesigns: z.array(ledDesignSchema).max(50).default([]),
 });
 export type Project = z.infer<typeof projectSchema>;
 export const stateSchema = z
@@ -212,6 +221,31 @@ export const stateSchema = z
     if (new Set(zohoIds).size !== zohoIds.length)
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate Zoho account IDs" });
     for (const p of state.projects) {
+      if (new Set(p.ledDesigns.map((d) => d.id)).size !== p.ledDesigns.length)
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate LED design IDs" });
+      const ledSnapshots = new Map<string, string>();
+      for (const design of p.ledDesigns) {
+        if (new Set(design.items.map((i) => i.id)).size !== design.items.length)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Duplicate saved LED BOM item IDs",
+          });
+        const contents = JSON.stringify([
+          design.bomRevision,
+          design.currency,
+          design.taxRate,
+          design.items,
+        ]);
+        if (
+          ledSnapshots.has(design.bomSnapshotId) &&
+          ledSnapshots.get(design.bomSnapshotId) !== contents
+        )
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Conflicting saved LED BOM snapshots",
+          });
+        ledSnapshots.set(design.bomSnapshotId, contents);
+      }
       validateAvDrafts(p, ctx);
       if (new Set(p.drawingSets.map((d) => d.id)).size !== p.drawingSets.length)
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate drawing set IDs" });
@@ -323,6 +357,8 @@ export function blankProject(name = "Untitled project"): Project {
     drawingSets: [],
     meetings: [],
     tasks: [],
+    ledPlanner: ledPlannerSchema.parse({}),
+    ledDesigns: [],
     led: {
       width: 6000,
       height: 3000,

@@ -159,7 +159,7 @@ function WorkspaceShell() {
           ) : page === "designer" ? (
             <Designer />
           ) : page === "led" ? (
-            <Led />
+            <Led key={p.id} />
           ) : page === "meetings" ? (
             <Meetings />
           ) : page === "crm" ? (
