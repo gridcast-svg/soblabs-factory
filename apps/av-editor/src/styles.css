@@ -1,0 +1,87 @@
+@import './tokens.css';
+@import './typography.css';
+@import './app/av-schematic/shared/directives/tooltip/tooltip.css';
+@import 'ng-diagram/styles.css';
+
+html[data-theme='dark'] {
+  background-color: var(--ngd-colors-gray-800);
+}
+
+html[data-theme='light'] {
+  background-color: var(--ngd-colors-gray-200);
+}
+
+html,
+body {
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ngd-focus-ring-element);
+  outline-offset: 2px;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+p {
+  text-wrap: pretty;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+/* Factory palette; retain the upstream editor's light/dark theme support. */
+:root {
+  --ngd-colors-acc1-500: #42969d;
+  --ngd-colors-acc1-600: #33828a;
+  --ngd-colors-acc1-400: #86e1e4;
+  --ngd-colors-acc1-300: #a9ecee;
+  --ngd-colors-acc1-500-10: #86e1e41a;
+  --ngd-colors-acc1-500-20: #86e1e433;
+}
+html[data-theme='dark'] {
+  background: #121722;
+}
+html,
+body {
+  font-family: Inter, Arial, sans-serif;
+}
+.factory-title {
+  color: var(--ngd-txt-primary-default);
+  font-size: 18px;
+  white-space: nowrap;
+}
+.factory-title strong {
+  margin-left: 12px;
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.65;
+}

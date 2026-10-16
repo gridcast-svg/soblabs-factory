@@ -64,9 +64,15 @@ test("project, BOM pricing and persistence", async ({ page }) => {
 test("schematic and rack share device identity; export produces a drawing", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "System designer", exact: true }).click();
-  await expect(page.locator(".react-flow__node")).toHaveCount(2);
+  await expect(
+    page.frameLocator('iframe[title="Soblabs AV schematic canvas"]').locator("app-device-node"),
+  ).toHaveCount(2);
   await expect(page.getByText("C-001: cable missing from selected BOM")).toBeVisible();
-  await page.locator(".react-flow__node").first().click();
+  await page
+    .frameLocator('iframe[title="Soblabs AV schematic canvas"]')
+    .locator("app-device-node")
+    .first()
+    .click();
   await page.getByLabel("Rack starting U").fill("1");
   await expect(page.getByText(/Rack U1:.*overlaps/)).toBeVisible();
   await page.getByRole("button", { name: "Rack elevation" }).click();
@@ -156,6 +162,7 @@ test("rack drag-and-drop snaps equipment to rack units", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "System designer", exact: true }).click();
   await page.getByRole("button", { name: "Rack elevation" }).click();
+  await expect(page.getByTitle("Soblabs AV schematic canvas", { exact: true })).toHaveCount(0);
   await page
     .locator(".ws-rack-device")
     .filter({ hasText: "Media player" })

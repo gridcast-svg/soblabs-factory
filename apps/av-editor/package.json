@@ -1,0 +1,64 @@
+{
+  "name": "ng-diagram-av-schematic",
+  "version": "0.1.0",
+  "description": "Interactive AV schematic template built with Angular and ng-diagram",
+  "license": "MIT",
+  "keywords": [
+    "visualization",
+    "open-source",
+    "angular",
+    "typescript",
+    "graph",
+    "diagram",
+    "av",
+    "audio-video",
+    "schematic",
+    "diagramming",
+    "node-editor",
+    "node-based-ui",
+    "ng-diagram"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/synergycodes/ng-diagram-av-schematic.git"
+  },
+  "homepage": "https://www.ngdiagram.dev",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "format": "prettier --write \"src/**/*.{ts,html,css,scss}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,css,scss}\"",
+    "lint": "ng lint --max-warnings=0",
+    "lint:fix": "ng lint --fix",
+    "type-check": "tsc -b --noEmit"
+  },
+  "private": true,
+  "packageManager": "npm@10.9.2",
+  "dependencies": {
+    "@angular/common": "21.2.25",
+    "@angular/compiler": "21.2.25",
+    "@angular/core": "21.2.25",
+    "@angular/forms": "21.2.25",
+    "@angular/platform-browser": "21.2.25",
+    "@angular/router": "21.2.25",
+    "html-to-image": "^1.11.13",
+    "ng-diagram": "1.3.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@angular/build": "21.2.27",
+    "@angular/cli": "21.2.27",
+    "@angular/compiler-cli": "21.2.25",
+    "@eslint/js": "^10.0.1",
+    "angular-eslint": "21.4.0",
+    "eslint": "^10.3.0",
+    "jsdom": "^29.0.2",
+    "prettier": "^3.8.3",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "8.59.2",
+    "vitest": "^4.1.4"
+  }
+}

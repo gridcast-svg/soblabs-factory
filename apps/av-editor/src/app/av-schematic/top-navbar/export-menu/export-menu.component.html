@@ -1,0 +1,38 @@
+@let open = isOpen();
+<!-- Wrapper listens for Escape/arrow keys; the trigger button + panel items are the real interactive elements. -->
+<!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+<div class="export-menu" (keydown)="onKeydown($event)">
+  <button
+    type="button"
+    class="trigger p10"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="open"
+    [disabled]="!canExport()"
+    (click)="toggle()"
+  >
+    Export
+  </button>
+
+  @if (open) {
+    <div class="panel" role="menu">
+      <button
+        type="button"
+        class="panel-item"
+        role="menuitem"
+        [disabled]="isExporting()"
+        (click)="exportPng()"
+      >
+        Export to PNG
+      </button>
+      <button
+        type="button"
+        class="panel-item"
+        role="menuitem"
+        [disabled]="isExporting()"
+        (click)="exportDxf()"
+      >
+        Export to DXF
+      </button>
+    </div>
+  }
+</div>

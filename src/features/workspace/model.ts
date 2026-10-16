@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { avGeometrySchema, avLibrarySchema, avPointSchema, avWireSchema } from "./av-schema";
 import { accountSchema, contactSchema, dealSchema, activitySchema } from "./crm-model";
 export type { Account, Contact, Deal, Activity } from "./crm-model";
 
@@ -41,6 +42,9 @@ const deviceSchema = z.object({
   x: finite,
   y: finite,
   rackStart: finite.int().min(1).max(48).nullable(),
+  location: z.string().optional(),
+  avGeometry: avGeometrySchema.optional(),
+  avTemplateId: z.string().optional(),
 });
 export type Device = z.infer<typeof deviceSchema>;
 const connectionSchema = z.object({
@@ -53,8 +57,72 @@ const connectionSchema = z.object({
   label: z.string(),
   lengthM: finite.positive().nullable(),
   bomItemId: z.string().nullable(),
+  route: z
+    .object({ mode: z.enum(["auto", "manual"]), points: z.array(avPointSchema).max(2000) })
+    .optional(),
 });
 export type Connection = z.infer<typeof connectionSchema>;
+const drawingSetSchema = z
+  .object({
+    id: z.string().min(1),
+    sourceProjectId: z.string().min(1),
+    projectName: z.string(),
+    customer: z.string(),
+    title: z.string().trim().min(1).max(200),
+    drawingNumber: z.string().trim().min(1).max(80),
+    drawingRevision: z.number().int().positive(),
+    bomName: z.string().trim().min(1).max(200),
+    bomSnapshotId: z.string().min(1),
+    bomRevision: z.number().int().positive(),
+    currency: z.enum(["CAD", "USD"]),
+    taxRate: finite.min(0).max(100),
+    createdAt: z.string().datetime(),
+    notes: z.string().max(4000),
+    items: z.array(itemSchema),
+    devices: z.array(deviceSchema),
+    connections: z.array(connectionSchema),
+    avDrafts: z.array(avWireSchema).default([]),
+  })
+  .superRefine((drawing, ctx) => {
+    for (const entries of [drawing.items, drawing.devices, drawing.connections]) {
+      if (new Set(entries.map((x) => x.id)).size !== entries.length)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate saved drawing record IDs",
+        });
+    }
+    for (const device of drawing.devices) {
+      if (!drawing.items.some((item) => item.id === device.itemId))
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Saved drawing refers to a missing BOM item",
+        });
+    }
+    validateAvDrafts(drawing, ctx);
+    for (const connection of drawing.connections) {
+      for (const [deviceId, portId] of [
+        [connection.source, connection.sourcePort],
+        [connection.target, connection.targetPort],
+      ]) {
+        const device = drawing.devices.find((d) => d.id === deviceId);
+        if (
+          !drawing.items
+            .find((i) => i.id === device?.itemId)
+            ?.ports.some((port) => port.id === portId)
+        )
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Saved drawing refers to a missing device or port",
+          });
+      }
+      if (connection.bomItemId && !drawing.items.some((i) => i.id === connection.bomItemId))
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Saved drawing refers to a missing cable item",
+        });
+    }
+  });
+export type DrawingSet = z.infer<typeof drawingSetSchema>;
 const meetingSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -94,6 +162,9 @@ export const projectSchema = z.object({
   items: z.array(itemSchema),
   devices: z.array(deviceSchema),
   connections: z.array(connectionSchema),
+  avDrafts: z.array(avWireSchema).default([]),
+  avLibrary: avLibrarySchema.nullable().default(null),
+  drawingSets: z.array(drawingSetSchema).default([]),
   meetings: z.array(meetingSchema),
   tasks: z.array(taskSchema),
   led: ledSchema,
@@ -141,6 +212,41 @@ export const stateSchema = z
     if (new Set(zohoIds).size !== zohoIds.length)
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate Zoho account IDs" });
     for (const p of state.projects) {
+      validateAvDrafts(p, ctx);
+      if (new Set(p.drawingSets.map((d) => d.id)).size !== p.drawingSets.length)
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate drawing set IDs" });
+      if (
+        new Set(
+          p.drawingSets.map((d) => `${d.drawingNumber.toUpperCase()}\u0000${d.drawingRevision}`),
+        ).size !== p.drawingSets.length
+      )
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate drawing number and revision",
+        });
+      for (const drawing of p.drawingSets)
+        if (drawing.sourceProjectId !== p.id)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Drawing set belongs to a different project",
+          });
+      const snapshots = new Map<string, string>();
+      for (const drawing of p.drawingSets) {
+        const value = JSON.stringify([
+          drawing.bomName,
+          drawing.bomRevision,
+          drawing.currency,
+          drawing.taxRate,
+          drawing.items,
+        ]);
+        const previous = snapshots.get(drawing.bomSnapshotId);
+        if (previous && previous !== value)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "BOM snapshot has conflicting saved contents",
+          });
+        snapshots.set(drawing.bomSnapshotId, value);
+      }
       check(p.accountId, state.accounts, "account");
       for (const entries of [p.items, p.devices, p.connections, p.meetings, p.tasks])
         if (new Set(entries.map((x) => x.id)).size !== entries.length)
@@ -212,6 +318,9 @@ export function blankProject(name = "Untitled project"): Project {
     items: [],
     devices: [],
     connections: [],
+    avDrafts: [],
+    avLibrary: null,
+    drawingSets: [],
     meetings: [],
     tasks: [],
     led: {
@@ -329,6 +438,15 @@ export function totals(p: Project) {
 }
 export function reconcile(p: Project): string[] {
   const issues: string[] = [];
+  if (p.avDrafts.length)
+    issues.push(`${p.avDrafts.length} unfinished cables: connect both ends before construction`);
+  const labels = new Set<string>();
+  for (const cable of p.connections) {
+    const label = cable.label.trim().toUpperCase();
+    if (!label) issues.push("A connection is missing its cable ID");
+    else if (labels.has(label)) issues.push(`${cable.label}: duplicate cable ID`);
+    labels.add(label);
+  }
   for (const i of p.items.filter((i) => i.scope === "Selected" && i.drawingRequired)) {
     const n = p.devices.filter((d) => d.itemId === i.id).length;
     if (n !== i.quantity) issues.push(`${i.description}: ${n} drawn / ${i.quantity} in BOM`);
@@ -382,5 +500,51 @@ export function removeItem(p: Project, id: string): Project {
     connections: p.connections
       .filter((c) => !deviceIds.has(c.source) && !deviceIds.has(c.target))
       .map((c) => (c.bomItemId === id ? { ...c, bomItemId: null } : c)),
+    avDrafts: p.avDrafts
+      .filter((c) => !deviceIds.has(c.source) && !deviceIds.has(c.target))
+      .map((c) => (c.data.bomItemId === id ? { ...c, data: { ...c.data, bomItemId: null } } : c)),
   };
+}
+
+function validateAvDrafts(
+  design: {
+    items: BomItem[];
+    devices: Device[];
+    connections: Connection[];
+    avDrafts: z.infer<typeof avWireSchema>[];
+  },
+  ctx: z.RefinementCtx,
+) {
+  const ids = [...design.connections.map((c) => c.id), ...design.avDrafts.map((c) => c.id)];
+  if (new Set(ids).size !== ids.length)
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate cable record IDs" });
+  for (const item of design.items)
+    if (new Set(item.ports.map((port) => port.id)).size !== item.ports.length)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate equipment port IDs" });
+  for (const cable of design.avDrafts) {
+    if ((!cable.source && !cable.target) || (cable.source && cable.target))
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "An unfinished cable needs exactly one connected end",
+      });
+    for (const [id, portId] of [
+      [cable.source, cable.sourcePort],
+      [cable.target, cable.targetPort],
+    ]) {
+      if (!id) continue;
+      const device = design.devices.find((d) => d.id === id);
+      if (
+        !design.items.find((i) => i.id === device?.itemId)?.ports.some((port) => port.id === portId)
+      )
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Unfinished cable refers to a missing device or port",
+        });
+    }
+    if (cable.data.bomItemId && !design.items.some((item) => item.id === cable.data.bomItemId))
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Unfinished cable refers to a missing BOM item",
+      });
+  }
 }

@@ -1,0 +1,85 @@
+.ws-drawing-sets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 22px;
+  margin: 0 0 24px;
+  background: #ffffff03;
+  border: 1px solid #ffffff12;
+  border-radius: 10px;
+}
+.ws-drawing-sets h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.ws-drawing-sets p {
+  color: #98a9ba;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 8px 0;
+}
+.ws-drawing-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+.ws-drawing-sets .ws-actions {
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.ws-drawing-summary {
+  padding: 14px 0 0;
+}
+.ws-drawing-summary strong {
+  font-size: 13px;
+  color: #d9eef1;
+}
+.ws-drawing-summary small {
+  color: #98a9ba;
+  line-height: 1.6;
+}
+.ws-drawing-sets details {
+  margin-top: 12px;
+  color: #91d9de;
+  font-size: 12px;
+}
+.ws-drawing-sets summary {
+  cursor: pointer;
+}
+.ws-drawing-sets details img {
+  width: 100%;
+  margin-top: 12px;
+  background: white;
+  border-radius: 4px;
+}
+.ws-signal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 12px 0;
+  font-size: 11px;
+  color: #9caec0;
+}
+.ws-signal-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ws-signal-legend i {
+  width: 20px;
+  height: 3px;
+  display: inline-block;
+}
+.ws-bom-drawings {
+  margin-top: 24px;
+}
+.ws-bom-drawings p {
+  font-size: 12px;
+  color: #98a9ba;
+}
+@media (max-width: 1200px) {
+  .ws-drawing-sets {
+    grid-template-columns: 1fr;
+  }
+}

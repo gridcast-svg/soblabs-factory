@@ -1,0 +1,48 @@
+<ng-diagram-palette-item [item]="paletteItem()">
+  <div
+    class="device-row"
+    role="button"
+    tabindex="0"
+    (click)="onOpenDetail()"
+    (keydown.enter)="onOpenDetail()"
+    (keydown.space)="onOpenDetail(); $event.preventDefault()"
+  >
+    <div class="device-row__main">
+      @if (device().template.manufacturer) {
+        <span class="device-row__manufacturer p10">
+          @for (
+            seg of device().template.manufacturer | highlightSegments: searchQuery();
+            track $index
+          ) {
+            <span [class.is-match]="seg.match">{{ seg.text }}</span>
+          }
+        </span>
+      }
+      <span class="device-row__model">
+        @if (device().template.model) {
+          @for (seg of device().template.model | highlightSegments: searchQuery(); track $index) {
+            <span [class.is-match]="seg.match">{{ seg.text }}</span>
+          }
+        } @else {
+          New device
+        }
+      </span>
+    </div>
+    @if (device().template.factoryItemId) {
+      <span class="device-row__chip">BOM</span>
+    }
+    @if (categoryLabel()) {
+      <span class="device-row__chip">{{ categoryLabel() }}</span>
+    }
+  </div>
+
+  <ng-diagram-palette-item-preview>
+    <div class="device-preview">
+      <div class="device-preview__header">
+        <span class="device-preview__id">{{ device().template.deviceId || '—' }}</span>
+        <span class="device-preview__info">{{ device().template.manufacturer }}</span>
+        <span class="device-preview__info">{{ device().template.model }}</span>
+      </div>
+    </div>
+  </ng-diagram-palette-item-preview>
+</ng-diagram-palette-item>

@@ -1,123 +1,22 @@
-import { drawingSvg } from "./drawing";
-import { useEffect, useState } from "react";
-import {
-  ReactFlow,
-  Background,
-  Controls,
-  MiniMap,
-  Handle,
-  Position,
-  useNodesState,
-  MarkerType,
-} from "@xyflow/react";
-import type { NodeProps, Node, Connection as FlowConnection } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
+import { drawingSvg, signalColor } from "./drawing";
+import { DrawingSets } from "./DrawingSets";
+import { AvEditor } from "./AvEditor";
+import { useState } from "react";
 import { Cable, Plus, Download, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useWorkspace } from "./store";
 import { blankItem, uid, reconcile } from "./model";
 import type { BomItem, Project } from "./model";
 import { download } from "./files";
-type EquipmentNode = Node<
-  { label: string; description: string; ports: BomItem["ports"] },
-  "equipment"
->;
-function Equipment({ data, selected }: NodeProps<EquipmentNode>) {
-  return (
-    <div className={`ws-equipment ${selected ? "selected" : ""}`}>
-      <div className="ws-equipment-title">
-        <Cable size={15} />
-        {data.label}
-      </div>
-      <small>{data.description}</small>
-      <div className="ws-port-list">
-        {data.ports.map((p) => (
-          <div className={`ws-port ${p.direction}`} key={p.id}>
-            {p.direction !== "output" && (
-              <Handle id={p.id} type="target" position={Position.Left} />
-            )}
-            <span>{p.label}</span>
-            <small>{p.connector || "Unknown"}</small>
-            {p.direction !== "input" && (
-              <Handle id={p.id} type="source" position={Position.Right} />
-            )}
-          </div>
-        ))}
-      </div>
-      {!data.ports.length && <p className="ws-footnote">Select device to add ports</p>}
-    </div>
-  );
-}
-const nodeTypes = { equipment: Equipment };
 export function Designer() {
   const { project: p, updateProject } = useWorkspace();
   const [view, setView] = useState<"schematic" | "rack">("schematic");
   const [selected, setSelected] = useState("");
   const [edgeId, setEdgeId] = useState("");
-  const [nodes, setNodes, onNodesChange] = useNodesState<EquipmentNode>([]);
-  useEffect(() => {
-    setNodes(
-      p.devices.map((d) => ({
-        id: d.id,
-        type: "equipment",
-        position: { x: d.x, y: d.y },
-        data: {
-          label: d.label,
-          description: p.items.find((i) => i.id === d.itemId)?.description ?? "",
-          ports: p.items.find((i) => i.id === d.itemId)?.ports ?? [],
-        },
-      })),
-    );
-  }, [p.devices, p.items, setNodes]);
   const device = p.devices.find((d) => d.id === selected);
   const item = p.items.find((i) => i.id === device?.itemId);
   const edge = p.connections.find((c) => c.id === edgeId);
   const issues = reconcile(p);
-  function connect(c: FlowConnection) {
-    const src = p.devices.find((d) => d.id === c.source);
-    const dst = p.devices.find((d) => d.id === c.target);
-    const sp = p.items
-      .find((i) => i.id === src?.itemId)
-      ?.ports.find((x) => x.id === c.sourceHandle);
-    const tp = p.items
-      .find((i) => i.id === dst?.itemId)
-      ?.ports.find((x) => x.id === c.targetHandle);
-    if (!sp || !tp || c.source === c.target) return;
-    if (sp.connector !== tp.connector)
-      toast.warning("Different connector types: verify an adapter or converter.");
-    if (
-      p.connections.some(
-        (x) =>
-          x.source === c.source &&
-          x.sourcePort === c.sourceHandle &&
-          x.target === c.target &&
-          x.targetPort === c.targetHandle,
-      )
-    ) {
-      toast.error("That connection already exists");
-      return;
-    }
-    const id = uid();
-    updateProject({
-      ...p,
-      connections: [
-        ...p.connections,
-        {
-          id,
-          source: c.source,
-          target: c.target,
-          sourcePort: c.sourceHandle!,
-          targetPort: c.targetHandle!,
-          label: `C-${String(p.connections.length + 1).padStart(3, "0")}`,
-          cableType: sp.connector === tp.connector ? sp.connector : "Verify / adapter required",
-          lengthM: null,
-          bomItemId: null,
-        },
-      ],
-    });
-    setEdgeId(id);
-    setSelected("");
-  }
   function place(i: BomItem) {
     const id = uid();
     updateProject({
@@ -137,20 +36,6 @@ export function Designer() {
     setSelected(id);
     setEdgeId("");
   }
-  const edges = p.connections.map((c) => ({
-    id: c.id,
-    source: c.source,
-    target: c.target,
-    sourceHandle: c.sourcePort,
-    targetHandle: c.targetPort,
-    label: `${c.label} · ${c.cableType}${c.lengthM ? ` · ${c.lengthM}m` : ""}`,
-    type: "smoothstep",
-    animated: false,
-    markerEnd: { type: MarkerType.ArrowClosed, color: "#73e3e9" },
-    style: { stroke: c.bomItemId ? "#73e3e9" : "#b5a0f3", strokeWidth: 2 },
-    labelStyle: { fill: "#d9e6ee", fontSize: 11 },
-    labelBgStyle: { fill: "#1b2332" },
-  }));
   return (
     <>
       <div className="ws-section-heading">
@@ -179,7 +64,29 @@ export function Designer() {
           </button>
         </div>
       </div>
-      <div className="ws-designer">
+      <div className="ws-signal-legend" aria-label="Cable signal legend">
+        {["Video / HDMI", "Network / RJ45", "Audio / XLR", "Fiber", "Power"].map((type) => (
+          <span key={type}>
+            <i style={{ background: signalColor(type) }} />
+            {type}
+          </span>
+        ))}
+        <span>Dashed cable: no linked BOM item</span>
+      </div>
+      {view === "schematic" && (
+        <AvEditor
+          key={`av-${p.id}`}
+          onSelection={(nodeId, wireId) => {
+            setSelected(nodeId);
+            setEdgeId(wireId);
+          }}
+        />
+      )}
+      <h3 className="ws-spaced">BOM links & rack properties</h3>
+      <p className="ws-footnote">
+        Select equipment or a cable in the canvas to edit its Factory details.
+      </p>
+      <div className={`ws-designer ${view === "schematic" ? "ws-av-details" : ""}`}>
         <aside className="ws-library">
           <div className="ws-panel-label">PROJECT EQUIPMENT</div>
           <p>Place an instance from the selected BOM.</p>
@@ -211,53 +118,8 @@ export function Designer() {
             compatibility require technical verification.
           </p>
         </aside>
-        <div className="ws-canvas">
-          {view === "schematic" ? (
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              nodeTypes={nodeTypes}
-              onNodesChange={onNodesChange}
-              onNodeDragStop={(_, n) =>
-                updateProject({
-                  ...p,
-                  devices: p.devices.map((d) =>
-                    d.id === n.id
-                      ? {
-                          ...d,
-                          x: Math.round(n.position.x / 20) * 20,
-                          y: Math.round(n.position.y / 20) * 20,
-                        }
-                      : d,
-                  ),
-                })
-              }
-              onConnect={connect}
-              onNodeClick={(_, n) => {
-                setSelected(n.id);
-                setEdgeId("");
-              }}
-              onEdgeClick={(_, e) => {
-                setEdgeId(e.id);
-                setSelected("");
-              }}
-              onPaneClick={() => {
-                setSelected("");
-                setEdgeId("");
-              }}
-              fitView
-              snapToGrid
-              snapGrid={[20, 20]}
-              deleteKeyCode={null}
-              colorMode="dark"
-              minZoom={0.2}
-              maxZoom={2}
-            >
-              <Background gap={20} color="#253041" />
-              <Controls />
-              <MiniMap nodeColor="#41747f" />
-            </ReactFlow>
-          ) : (
+        {view === "rack" && (
+          <div className="ws-canvas">
             <Rack
               project={p}
               selected={selected}
@@ -266,8 +128,8 @@ export function Designer() {
                 setEdgeId("");
               }}
             />
-          )}
-        </div>
+          </div>
+        )}
         <aside className="ws-inspector">
           <div className="ws-panel-label">PROPERTIES</div>
           {device && item ? (
@@ -454,6 +316,9 @@ export function Designer() {
                   updateProject({
                     ...p,
                     devices: p.devices.filter((d) => d.id !== device.id),
+                    avDrafts: p.avDrafts.filter(
+                      (c) => c.source !== device.id && c.target !== device.id,
+                    ),
                     connections: p.connections.filter(
                       (c) => c.source !== device.id && c.target !== device.id,
                     ),
@@ -584,6 +449,7 @@ export function Designer() {
           )}
         </aside>
       </div>
+      <DrawingSets key={`drawings-${p.id}`} />
       <div className="ws-section-heading ws-spaced">
         <h3>Cable schedule</h3>
         <span className="ws-badge">{p.connections.length} connections</span>

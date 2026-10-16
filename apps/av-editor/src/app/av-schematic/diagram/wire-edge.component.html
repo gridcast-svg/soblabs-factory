@@ -1,0 +1,42 @@
+<ng-diagram-base-edge
+  [edge]="edge()"
+  [stroke]="strokeColor()"
+  [strokeWidth]="strokeWidth()"
+  [strokeDasharray]="edge().data.bomItemId ? undefined : '6 4'"
+>
+  <ng-diagram-base-edge-label id="wire-id-source" [positionOnEdge]="shortWire() ? 0.5 : '30px'">
+    <button
+      type="button"
+      class="wire-label"
+      (pointerdown)="$event.stopPropagation()"
+      (click)="selectWire($event)"
+    >
+      {{ edge().data.wireId }}
+    </button>
+  </ng-diagram-base-edge-label>
+  @if (!shortWire()) {
+    <ng-diagram-base-edge-label id="wire-id-target" [positionOnEdge]="'-30px'">
+      <button
+        type="button"
+        class="wire-label"
+        (pointerdown)="$event.stopPropagation()"
+        (click)="selectWire($event)"
+      >
+        {{ edge().data.wireId }}
+      </button>
+    </ng-diagram-base-edge-label>
+  }
+
+  @for (endpoint of endpointHandles(); track endpoint.id) {
+    <ng-diagram-base-edge-label [id]="endpoint.id" [positionOnEdge]="'0px'">
+      <span
+        class="wire-handle wire-handle--endpoint"
+        [style.transform]="endpoint.transform"
+        appRelinkHandle
+        (relinkStart)="onEndpointStart($event, endpoint.side)"
+        (relinkContinue)="onEndpointContinue($event)"
+        (relinkEnd)="onEndpointEnd($event)"
+      ></span>
+    </ng-diagram-base-edge-label>
+  }
+</ng-diagram-base-edge>
