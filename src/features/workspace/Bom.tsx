@@ -165,6 +165,23 @@ export function Bom() {
         {formatMoney(t.total, p.currency)}.{" "}
         {t.incomplete > 0 && "Complete missing costs / exchange rates before issuing pricing."}
       </div>
+      {!!p.drawingSets.length && (
+        <section className="ws-card ws-spaced" aria-label="Drawings linked to BOMs">
+          <h3>Drawings linked to BOMs</h3>
+          <p>
+            Saved revisions retain their original BOM. Open System designer to preview or export
+            them.
+          </p>
+          {[...p.drawingSets].reverse().map((drawing) => (
+            <p key={drawing.id}>
+              <strong>
+                {drawing.drawingNumber} R{drawing.drawingRevision}
+              </strong>{" "}
+              · {drawing.title} · {drawing.bomName} R{drawing.bomRevision}
+            </p>
+          ))}
+        </section>
+      )}
       {edit && (
         <ItemEditor
           item={edit}

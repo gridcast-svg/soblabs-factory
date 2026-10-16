@@ -2,7 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertAdmin(context: { supabase: { rpc: (fn: string) => Promise<{ data: unknown }> } }) {
+async function assertAdmin(context: {
+  supabase: { rpc: (fn: string) => Promise<{ data: unknown }> };
+}) {
   const { data } = await context.supabase.rpc("is_admin");
   if (data !== true) throw new Error("Forbidden — administrators only.");
 }
@@ -17,7 +19,7 @@ const inviteSchema = z.object({
 /** Invitation-only account creation. Administrators only. */
 export const createAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => inviteSchema.parse(data))
+  .validator((data: unknown) => inviteSchema.parse(data))
   .handler(async ({ data, context }) => {
     await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -40,7 +42,7 @@ export const createAccount = createServerFn({ method: "POST" })
 /** Change another account's role. Administrators only; never self-service. */
 export const setAccountRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z.object({ userId: z.string().uuid(), role: z.enum(["admin", "salesperson"]) }).parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -58,7 +60,7 @@ export const setAccountRole = createServerFn({ method: "POST" })
 /** Activate or deactivate an account. Administrators only. */
 export const setAccountActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z.object({ userId: z.string().uuid(), isActive: z.boolean() }).parse(data),
   )
   .handler(async ({ data, context }) => {

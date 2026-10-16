@@ -1,4 +1,6 @@
-import { drawingSvg } from "./drawing";
+import { drawingSvg, signalColor } from "./drawing";
+import { DrawingSets } from "./DrawingSets";
+import { nextCableLabel } from "./drawing-sets";
 import { useEffect, useState } from "react";
 import {
   ReactFlow,
@@ -108,7 +110,7 @@ export function Designer() {
           target: c.target,
           sourcePort: c.sourceHandle!,
           targetPort: c.targetHandle!,
-          label: `C-${String(p.connections.length + 1).padStart(3, "0")}`,
+          label: nextCableLabel(p.connections),
           cableType: sp.connector === tp.connector ? sp.connector : "Verify / adapter required",
           lengthM: null,
           bomItemId: null,
@@ -146,8 +148,12 @@ export function Designer() {
     label: `${c.label} · ${c.cableType}${c.lengthM ? ` · ${c.lengthM}m` : ""}`,
     type: "smoothstep",
     animated: false,
-    markerEnd: { type: MarkerType.ArrowClosed, color: "#73e3e9" },
-    style: { stroke: c.bomItemId ? "#73e3e9" : "#b5a0f3", strokeWidth: 2 },
+    markerEnd: { type: MarkerType.ArrowClosed, color: signalColor(c.cableType) },
+    style: {
+      stroke: signalColor(c.cableType),
+      strokeWidth: 2,
+      strokeDasharray: c.bomItemId ? undefined : "6 4",
+    },
     labelStyle: { fill: "#d9e6ee", fontSize: 11 },
     labelBgStyle: { fill: "#1b2332" },
   }));
@@ -178,6 +184,16 @@ export function Designer() {
             Export SVG
           </button>
         </div>
+      </div>
+      <DrawingSets key={p.id} />
+      <div className="ws-signal-legend" aria-label="Cable signal legend">
+        {["Video / HDMI", "Network / RJ45", "Audio / XLR", "Fiber", "Power"].map((type) => (
+          <span key={type}>
+            <i style={{ background: signalColor(type) }} />
+            {type}
+          </span>
+        ))}
+        <span>Dashed cable: no linked BOM item</span>
       </div>
       <div className="ws-designer">
         <aside className="ws-library">
