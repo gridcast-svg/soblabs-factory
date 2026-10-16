@@ -6,6 +6,7 @@ import {
   ListChecks,
   Workflow,
   Grid2X2,
+  Projector,
   FileText,
   Settings2,
   ArrowUpRight,
@@ -27,6 +28,7 @@ import { Designer } from "./Designer";
 import { Meetings } from "./Meetings";
 import { Crm } from "./Crm";
 import { Led } from "./Led";
+import { Projection } from "./Projection";
 import { blankProject, reconcile, totals, uid, stateSchema } from "./model";
 import { download } from "./files";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +40,7 @@ const nav = [
   { id: "bom", label: "Bill of materials", icon: ListChecks },
   { id: "designer", label: "System designer", icon: Workflow },
   { id: "led", label: "LED configurator", icon: Grid2X2 },
+  { id: "projection", label: "Projection planner", icon: Projector },
   { id: "meetings", label: "Meeting notes", icon: FileText },
   { id: "settings", label: "Settings & integrations", icon: Settings2 },
 ] as const;
@@ -160,6 +163,8 @@ function WorkspaceShell() {
             <Designer />
           ) : page === "led" ? (
             <Led key={p.id} />
+          ) : page === "projection" ? (
+            <Projection key={p.id} />
           ) : page === "meetings" ? (
             <Meetings />
           ) : page === "crm" ? (

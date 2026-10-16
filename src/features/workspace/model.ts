@@ -2,6 +2,7 @@ import { z } from "zod";
 import { avGeometrySchema, avLibrarySchema, avPointSchema, avWireSchema } from "./av-schema";
 import { accountSchema, contactSchema, dealSchema, activitySchema } from "./crm-model";
 import { ledGeometrySchema, ledPlannerSchema } from "./led-schema";
+import { projectionConfigSchema, projectionLibrarySchema } from "./projection-schema";
 export type { Account, Contact, Deal, Activity } from "./crm-model";
 
 const finite = z.number().finite();
@@ -157,6 +158,21 @@ const ledDesignSchema = z.object({
   items: z.array(itemSchema),
 });
 export type LedDesign = z.infer<typeof ledDesignSchema>;
+const projectionDesignSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().trim().min(1).max(120),
+  createdAt: z.string().datetime(),
+  projectName: z.string(),
+  customer: z.string(),
+  bomRevision: z.number().int().positive(),
+  bomSnapshotId: z.string().min(1),
+  currency: z.enum(["CAD", "USD"]),
+  taxRate: finite.min(0).max(100),
+  config: projectionConfigSchema,
+  library: projectionLibrarySchema,
+  items: z.array(itemSchema),
+});
+export type ProjectionDesign = z.infer<typeof projectionDesignSchema>;
 export const projectSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -177,6 +193,9 @@ export const projectSchema = z.object({
   led: ledGeometrySchema,
   ledPlanner: ledPlannerSchema.default({}),
   ledDesigns: z.array(ledDesignSchema).max(50).default([]),
+  projection: projectionConfigSchema.default({}),
+  projectionLibrary: projectionLibrarySchema.default({}),
+  projectionDesigns: z.array(projectionDesignSchema).max(50).default([]),
 });
 export type Project = z.infer<typeof projectSchema>;
 export const stateSchema = z
@@ -221,6 +240,48 @@ export const stateSchema = z
     if (new Set(zohoIds).size !== zohoIds.length)
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate Zoho account IDs" });
     for (const p of state.projects) {
+      for (const design of [
+        p,
+        ...p.projectionDesigns.map((d) => ({ projection: d.config, projectionLibrary: d.library })),
+      ]) {
+        if (
+          design.projection.projectorId &&
+          !design.projectionLibrary.projectors.some((x) => x.id === design.projection.projectorId)
+        )
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Missing selected projection projector",
+          });
+        if (
+          design.projection.lensId &&
+          !design.projectionLibrary.lenses.some((x) => x.id === design.projection.lensId)
+        )
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Missing selected projection lens",
+          });
+      }
+      if (new Set(p.projectionDesigns.map((d) => d.id)).size !== p.projectionDesigns.length)
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate projection design IDs" });
+      const projectionSnapshots = new Map<string, string>();
+      for (const design of p.projectionDesigns) {
+        const contents = JSON.stringify([
+          design.bomRevision,
+          design.currency,
+          design.taxRate,
+          design.items,
+        ]);
+        if (
+          new Set(design.items.map((i) => i.id)).size !== design.items.length ||
+          (projectionSnapshots.has(design.bomSnapshotId) &&
+            projectionSnapshots.get(design.bomSnapshotId) !== contents)
+        )
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Conflicting projection BOM snapshot",
+          });
+        projectionSnapshots.set(design.bomSnapshotId, contents);
+      }
       if (new Set(p.ledDesigns.map((d) => d.id)).size !== p.ledDesigns.length)
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate LED design IDs" });
       const ledSnapshots = new Map<string, string>();
@@ -359,6 +420,9 @@ export function blankProject(name = "Untitled project"): Project {
     tasks: [],
     ledPlanner: ledPlannerSchema.parse({}),
     ledDesigns: [],
+    projection: projectionConfigSchema.parse({}),
+    projectionLibrary: projectionLibrarySchema.parse({}),
+    projectionDesigns: [],
     led: {
       width: 6000,
       height: 3000,

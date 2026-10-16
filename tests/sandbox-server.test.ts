@@ -106,6 +106,18 @@ test("sandbox gateway protects pages and assets and verifies upstream health", a
       const pdf = Buffer.concat(chunks);
       assert.equal(pdf.subarray(0, 4).toString(), "%PDF");
       assert.ok(pdf.length > 1000);
+      await page.getByRole("button", { name: "Projection planner", exact: true }).click();
+      await page.getByRole("button", { name: "Load illustrative example", exact: true }).click();
+      await expect(page.locator("[data-projection-position]")).toHaveCount(2);
+      await expect(
+        page.getByRole("button", { name: "Update projection BOM", exact: true }),
+      ).toBeDisabled();
+      const projectionFile = page.waitForEvent("download");
+      await page.getByRole("button", { name: "Export projection PDF", exact: true }).click();
+      const projectionStream = await (await projectionFile).createReadStream();
+      const projectionChunks: Buffer[] = [];
+      for await (const chunk of projectionStream) projectionChunks.push(Buffer.from(chunk));
+      assert.equal(Buffer.concat(projectionChunks).subarray(0, 4).toString(), "%PDF");
       assert.deepEqual(errors, []);
     } finally {
       await browser.close();
