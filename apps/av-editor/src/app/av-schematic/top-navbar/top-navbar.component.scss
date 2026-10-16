@@ -47,3 +47,16 @@
   align-self: stretch;
   background: var(--ngd-ui-separator-primary-default);
 }
+
+.view-button {
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ngd-txt-primary-default);
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.top-navbar {
+  padding: 8px 12px;
+}

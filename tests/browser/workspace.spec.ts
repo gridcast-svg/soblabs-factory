@@ -162,6 +162,7 @@ test("rack drag-and-drop snaps equipment to rack units", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "System designer", exact: true }).click();
   await page.getByRole("button", { name: "Rack elevation" }).click();
+  await expect(page.getByTitle("Soblabs AV schematic canvas", { exact: true })).toHaveCount(0);
   await page
     .locator(".ws-rack-device")
     .filter({ hasText: "Media player" })

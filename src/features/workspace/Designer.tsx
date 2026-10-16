@@ -75,7 +75,7 @@ export function Designer() {
       </div>
       {view === "schematic" && (
         <AvEditor
-          key={p.id}
+          key={`av-${p.id}`}
           onSelection={(nodeId, wireId) => {
             setSelected(nodeId);
             setEdgeId(wireId);
@@ -449,7 +449,7 @@ export function Designer() {
           )}
         </aside>
       </div>
-      <DrawingSets key={p.id} />
+      <DrawingSets key={`drawings-${p.id}`} />
       <div className="ws-section-heading ws-spaced">
         <h3>Cable schedule</h3>
         <span className="ws-badge">{p.connections.length} connections</span>

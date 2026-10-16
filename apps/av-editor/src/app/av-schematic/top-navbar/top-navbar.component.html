@@ -3,6 +3,9 @@
     <span class="factory-title">soblabs <strong>AV designer</strong></span>
   </div>
   <div class="right-wrap">
+    <button type="button" class="view-button" (click)="togglePanels()">
+      {{ panelsHidden() ? 'Show panels' : 'Hide panels' }}
+    </button>
     <app-theme-toggle />
     <span class="navbar-separator" aria-hidden="true"></span>
     <app-export-menu />

@@ -1,4 +1,5 @@
 import { FactoryBridgeService } from '../factory-bridge.service';
+import { CanvasViewService } from '../diagram/canvas-view.service';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { provideNgDiagram } from 'ng-diagram';
 import { DiagramComponent } from '../diagram/diagram.component';
@@ -39,6 +40,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
   providers: [
     provideNgDiagram(),
     FactoryBridgeService,
+    CanvasViewService,
     PropertiesSidebarService,
     ElementMutationService,
     NodeVisibilityConfigService,

@@ -7,7 +7,6 @@ import {
   NgDiagramEdgeTemplateMap,
   NgDiagramModelService,
   NgDiagramNodeTemplateMap,
-  NgDiagramViewportService,
   type Edge,
   type EdgeDrawEndedEvent,
   type NgDiagramConfig,
@@ -31,12 +30,12 @@ import {
   type DeviceNodeData,
   type WireEdgeData,
 } from './model/interfaces';
-import { NodeVisibilityConfigService } from './node-visibility/node-visibility-config.service';
 import { DeviceNodeComponent } from './node/device-node.component';
 import { applyEdgeStretchOnSelectionMoved } from './edge-reshaping/middleware/edge-stretch-on-move';
 import { EdgeReshapeOverlayComponent } from './edge-reshaping/edge-reshape-overlay.component';
 import { WireEdgeComponent } from './wire-edge.component';
 import { FactoryBridgeService } from '../factory-bridge.service';
+import { CanvasViewService } from './canvas-view.service';
 
 @Component({
   selector: 'app-diagram',
@@ -47,16 +46,16 @@ import { FactoryBridgeService } from '../factory-bridge.service';
 })
 export class DiagramComponent {
   private readonly factoryBridge = inject(FactoryBridgeService);
+  private readonly canvasView = inject(CanvasViewService);
   private readonly avConfig = inject(AV_SCHEMATIC_CONFIG);
-  private readonly viewportService = inject(NgDiagramViewportService);
   private readonly sidebarService = inject(PropertiesSidebarService);
-  private readonly nodeVisibilityConfigService = inject(NodeVisibilityConfigService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly exportService = inject(DiagramExportService);
   private readonly danglingEdge = inject(DanglingEdgeService);
 
   constructor() {
+    this.canvasView.attach(this.elementRef.nativeElement);
     this.exportService.setDiagramElement(this.elementRef);
     inject(DestroyRef).onDestroy(() => {
       this.exportService.clearDiagramElement();
@@ -125,7 +124,7 @@ export class DiagramComponent {
 
   onDiagramInit(_: DiagramInitEvent): void {
     this.factoryBridge.ready(() => {
-      this.zoomToFit();
+      this.canvasView.fit();
     });
   }
 
@@ -201,19 +200,6 @@ export class DiagramComponent {
       ports: specification.ports,
       factoryItemId: specification.factoryItemId,
       deviceId,
-    });
-  }
-
-  private zoomToFit(): void {
-    const insets = this.nodeVisibilityConfigService.getViewportInsets();
-    const pad = this.avConfig.viewport.zoomToFitPadding;
-    void this.viewportService.zoomToFit({
-      padding: [
-        (insets.top ?? 0) + pad,
-        (insets.right ?? 0) + pad,
-        (insets.bottom ?? 0) + pad,
-        (insets.left ?? 0) + pad,
-      ],
     });
   }
 }

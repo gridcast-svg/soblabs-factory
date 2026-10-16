@@ -11,6 +11,7 @@ import {
   NgDiagramModelService,
   NgDiagramViewportService,
 } from 'ng-diagram';
+import { CanvasViewService } from '../diagram/canvas-view.service';
 import { AV_SCHEMATIC_CONFIG } from '../av-schematic.config';
 import { TooltipDirective } from '../shared/directives/tooltip/tooltip.directive';
 
@@ -22,6 +23,7 @@ import { TooltipDirective } from '../shared/directives/tooltip/tooltip.directive
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MinimapPanelComponent {
+  protected readonly canvasView = inject(CanvasViewService);
   private readonly config = inject(AV_SCHEMATIC_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);

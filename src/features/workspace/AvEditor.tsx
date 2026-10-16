@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Maximize2, RefreshCw } from "lucide-react";
+import { Maximize2, Minimize2, RefreshCw } from "lucide-react";
 import { applyAvDocument, projectToAv } from "./av-bridge";
 import { useWorkspace } from "./store";
 import "./av-editor.css";
@@ -19,6 +19,35 @@ export function AvEditor({
   const lastProject = useRef("");
   const [status, setStatus] = useState("Opening AV designer…");
   const [failed, setFailed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const expandButton = useRef<HTMLButtonElement>(null);
+
+  function closeEditor() {
+    if (document.fullscreenElement === shell.current) void document.exitFullscreen();
+    setExpanded(false);
+    expandButton.current?.focus();
+  }
+
+  function fullScreen() {
+    setExpanded(true);
+    void shell.current?.requestFullscreen().catch(() => {
+      setStatus("Designer expanded to the browser window. Browser fullscreen is unavailable.");
+    });
+  }
+
+  useEffect(() => {
+    if (!expanded) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const fullscreenChanged = () => {
+      if (!document.fullscreenElement) setExpanded(false);
+    };
+    document.addEventListener("fullscreenchange", fullscreenChanged);
+    return () => {
+      document.body.style.overflow = previous;
+      document.removeEventListener("fullscreenchange", fullscreenChanged);
+    };
+  }, [expanded]);
 
   const load = useCallback(() => {
     const current = latest.current.project;
@@ -90,23 +119,40 @@ export function AvEditor({
 
   return (
     <section className="ws-av-editor" aria-label="Interactive AV schematic editor">
-      <div className="ws-av-toolbar">
+      <div className="ws-av-toolbar" inert={expanded} aria-hidden={expanded}>
         <div>
           <strong>AV schematic</strong>
           <span>Drag equipment from the library. Select a wire to reshape its route.</span>
         </div>
-        <button
-          className="ws-button"
-          onClick={() =>
-            void shell.current
-              ?.requestFullscreen()
-              .catch(() => setStatus("Use your browser's full-screen mode to expand the designer."))
-          }
-        >
-          <Maximize2 size={14} /> Full screen
-        </button>
+        <div className="ws-actions">
+          <button
+            className="ws-button primary"
+            ref={expandButton}
+            onClick={() => setExpanded(true)}
+          >
+            <Maximize2 size={14} /> Expand designer
+          </button>
+          <button className="ws-button" onClick={fullScreen}>
+            Full screen
+          </button>
+        </div>
       </div>
-      <div className="ws-av-frame" ref={shell}>
+      <div className={`ws-av-frame ${expanded ? "is-expanded" : ""}`} ref={shell}>
+        {expanded && (
+          <div className="ws-av-stage-actions">
+            <strong>
+              {project.name} <span> / System designer</span>
+            </strong>
+            <div className="ws-actions">
+              <button className="ws-button" onClick={fullScreen}>
+                Full screen
+              </button>
+              <button className="ws-button" onClick={closeEditor}>
+                <Minimize2 size={14} /> Return to Factory
+              </button>
+            </div>
+          </div>
+        )}
         <iframe
           key={project.id}
           ref={frame}

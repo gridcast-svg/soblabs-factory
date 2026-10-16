@@ -13,7 +13,22 @@
     >
       <span class="icon icon-zoom-out"></span>
     </button>
-    <span class="zoom-level">{{ zoomPercent() }}</span>
+    <button
+      class="action-button zoom-level"
+      (click)="canvasView.actualSize()"
+      aria-label="Zoom to 100%"
+      appTooltip="Actual size (100%)"
+    >
+      {{ zoomPercent() }}
+    </button>
+    <button
+      class="action-button fit-all"
+      (click)="canvasView.fit()"
+      aria-label="Fit all equipment"
+      appTooltip="Fit all equipment"
+    >
+      Fit all
+    </button>
     <button
       class="action-button"
       [disabled]="!canZoomIn()"

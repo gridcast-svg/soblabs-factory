@@ -49,6 +49,7 @@
 }
 
 .action-button {
+  color: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,4 +103,13 @@
   min-width: 3rem;
   text-align: center;
   user-select: none;
+}
+
+.minimap-actions .zoom-level {
+  width: 52px;
+  font-size: 12px;
+}
+.minimap-actions .fit-all {
+  width: 56px;
+  font-size: 12px;
 }
