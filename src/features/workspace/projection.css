@@ -1,0 +1,32 @@
+.ws-projection-intro,
+.ws-projection-viewbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.ws-projection-intro span {
+  flex: 1;
+}
+.ws-projection-viewbar {
+  padding: 10px 14px;
+  border-bottom: 1px solid #ffffff12;
+}
+.ws-projection-viewbar .ws-led-zoom {
+  margin-left: auto;
+}
+.ws-projection-error {
+  color: #ed9295;
+}
+.ws-projection-warning {
+  color: #d4bb96;
+}
+.ws-projection-info {
+  color: #94bac8;
+}
+.ws-projection-stage .ws-led-canvas {
+  height: clamp(400px, 52vh, 780px);
+}
+.ws-projection-stage.is-expanded .ws-led-canvas {
+  height: auto;
+}
