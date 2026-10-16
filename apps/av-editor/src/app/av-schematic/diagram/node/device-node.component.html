@@ -1,0 +1,48 @@
+<div class="device-node">
+  <div class="device-node__header">
+    <span class="device-node__id">{{ data().deviceId }}</span>
+    <span class="device-node__info">{{ data().manufacturer }}</span>
+    <span class="device-node__info">{{ data().model }}</span>
+  </div>
+  <div class="device-node__separator"></div>
+  <div class="device-node__ports">
+    <div class="port-column port-column--input">
+      @for (port of inputPorts(); track port.id; let last = $last) {
+        <div
+          class="port-row"
+          [class.port-row--last]="last"
+          [class.is-link-target]="port.id === linkTargetPortId()"
+        >
+          <ng-diagram-port [id]="port.id" type="both" side="left">
+            <div class="port-shape port-shape--input" (dblclick)="onPortDblClick(port.id)"></div>
+          </ng-diagram-port>
+          <div class="port-info">
+            <span class="port-label">{{ port.label }}</span>
+            @if (port.connectorType) {
+              <span class="port-connector-type">{{ port.connectorType }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+    <div class="port-column port-column--output">
+      @for (port of outputPorts(); track port.id; let last = $last) {
+        <div
+          class="port-row port-row--output"
+          [class.port-row--last]="last"
+          [class.is-link-target]="port.id === linkTargetPortId()"
+        >
+          <div class="port-info port-info--output">
+            <span class="port-label">{{ port.label }}</span>
+            @if (port.connectorType) {
+              <span class="port-connector-type">{{ port.connectorType }}</span>
+            }
+          </div>
+          <ng-diagram-port [id]="port.id" type="both" side="right">
+            <div class="port-shape port-shape--output" (dblclick)="onPortDblClick(port.id)"></div>
+          </ng-diagram-port>
+        </div>
+      }
+    </div>
+  </div>
+</div>

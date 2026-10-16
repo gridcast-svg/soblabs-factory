@@ -1,0 +1,192 @@
+:host {
+  display: block;
+  position: relative;
+  cursor: grab;
+
+  --card-border-color: var(--ngd-ui-stroke-primary-default);
+  --card-bg: var(--ngd-node-bg-primary-default);
+  --card-header-bg: var(--ngd-ui-bg-tertiary-default);
+  --card-shadow: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &:not(.is-linking):hover,
+  &.is-linking:has(.port-shape:hover),
+  &.is-link-target {
+    --card-border-color: var(--av-color-selection-border);
+  }
+
+  &.selected,
+  &.edge-highlighted {
+    --card-border-color: var(--av-color-selection-border);
+    --card-shadow: 0 0 0 3px var(--av-color-selection-halo);
+    --card-bg: color-mix(in srgb, var(--av-color-accent) 5%, var(--ngd-node-bg-primary-default));
+    --card-header-bg: color-mix(
+      in srgb,
+      var(--av-color-accent) 8%,
+      var(--ngd-ui-bg-tertiary-default)
+    );
+  }
+
+  ng-diagram-port {
+    --ngd-port-size: 0;
+    --ngd-port-background-color: transparent;
+    --ngd-port-border-size: 0;
+
+    &[side='left'] {
+      transform: translateX(calc(-1 * var(--av-port-width)))
+        translateY(calc(-1 * var(--av-port-height) / 2));
+    }
+
+    &[side='right'] {
+      transform: translateY(calc(-1 * var(--av-port-height) / 2));
+    }
+  }
+}
+
+.device-node {
+  width: var(--av-node-width);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border-color);
+  border-radius: var(--ngd-token-radius-element-12);
+  color: var(--ngd-txt-primary-default);
+  font-size: 0.75rem;
+  box-shadow: var(--card-shadow);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.device-node__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  height: 78px;
+  padding: var(--ngd-primitive-4rule-4) var(--ngd-primitive-4rule-12) var(--ngd-primitive-4rule-8);
+  background: var(--card-header-bg);
+  border-radius: var(--ngd-token-radius-element-12) var(--ngd-token-radius-element-12) 0 0;
+  text-align: center;
+}
+
+.device-node__id {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ngd-txt-primary-default);
+
+  &:empty::before {
+    content: '\00A0';
+  }
+}
+
+.device-node__info {
+  font-size: 10px;
+  color: var(--ngd-txt-secondary-default);
+
+  &:empty::before {
+    content: '\00A0';
+  }
+}
+
+.device-node__separator {
+  height: 1px;
+  background: var(--ngd-ui-separator-primary-default);
+}
+
+.device-node__ports {
+  display: flex;
+}
+
+.port-column {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 50%;
+  width: 50%;
+
+  &--input {
+    border-right: 1px solid var(--ngd-ui-separator-primary-default);
+  }
+}
+
+.port-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ngd-primitive-4rule-8);
+  padding: var(--ngd-primitive-4rule-4) var(--ngd-primitive-4rule-12);
+  border-bottom: 1px solid var(--ngd-ui-separator-primary-default);
+  height: 40px;
+  position: relative;
+
+  &--last {
+    border-bottom: none;
+  }
+
+  &--output {
+    justify-content: flex-end;
+  }
+
+  &:hover .port-shape {
+    background: color-mix(in srgb, var(--av-color-accent) 20%, transparent);
+    border-color: var(--av-color-accent);
+  }
+}
+
+.port-shape {
+  width: var(--av-port-width);
+  height: var(--av-port-height);
+  background: transparent;
+  border: 1px solid var(--ngd-node-port-stroke-default);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  &--input {
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+  }
+
+  &--output {
+    border-radius: 0 4px 4px 0;
+    border-left: none;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--av-color-accent) 35%, transparent);
+    border-color: var(--av-color-accent);
+  }
+}
+
+.port-row.is-link-target .port-shape {
+  background: color-mix(in srgb, var(--av-color-accent) 35%, transparent);
+  border-color: var(--av-color-accent);
+}
+
+.port-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  &--output {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+.port-label {
+  font-size: 12px;
+  color: var(--ngd-txt-primary-default);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.port-connector-type {
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--ngd-txt-secondary-default);
+}

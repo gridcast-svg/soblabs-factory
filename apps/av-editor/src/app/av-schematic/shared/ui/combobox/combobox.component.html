@@ -1,0 +1,54 @@
+<div class="combobox">
+  <!-- Click-target chrome around the input; input itself is the real interactive element. -->
+  <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+  <div class="combobox-trigger" (click)="onTriggerClick()">
+    <input
+      #comboboxInput
+      class="combobox-input p10"
+      type="text"
+      role="combobox"
+      autocomplete="off"
+      [attr.id]="inputId()"
+      [attr.aria-controls]="inputId() + '-listbox'"
+      [attr.placeholder]="placeholder()"
+      [attr.aria-expanded]="isOpen()"
+      aria-autocomplete="list"
+      aria-haspopup="listbox"
+      [value]="value()"
+      (focus)="onFocus()"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+    />
+
+    <button
+      class="caret-button"
+      type="button"
+      tabindex="-1"
+      aria-label="Toggle options"
+      (click)="onChevronClick(); $event.stopPropagation()"
+    >
+      <span class="caret-icon" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  @if (isOpen() && displayedOptions().length > 0) {
+    <div class="combobox-listbox" role="listbox" [attr.id]="inputId() + '-listbox'">
+      @for (option of displayedOptions(); track option; let i = $index) {
+        <!-- Keyboard nav handled by the parent input's (keydown); mouse click is a pointer shortcut. -->
+        <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+        <div
+          #optionEl
+          class="combobox-option p10"
+          role="option"
+          [attr.aria-selected]="isSelected(option)"
+          [class.selected]="isSelected(option)"
+          [class.focused]="focusedIndex() === i"
+          (mousedown)="$event.preventDefault()"
+          (click)="select(option)"
+        >
+          <span class="option-label">{{ option }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

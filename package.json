@@ -5,17 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "npm run build:av && vite build",
     "build:dev": "vite build --mode development",
     "preview": "node .output/server/index.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/model.test.ts tests/security.test.ts tests/crm.test.ts tests/drawings.test.ts",
+    "test": "tsx --test tests/model.test.ts tests/security.test.ts tests/crm.test.ts tests/drawings.test.ts tests/av-editor.test.ts",
     "test:browser": "playwright test",
     "start": "node .output/server/index.mjs",
     "start:sandbox": "node scripts/sandbox-server.mjs",
-    "test:sandbox": "tsx --test tests/sandbox-server.test.ts"
+    "test:sandbox": "tsx --test tests/sandbox-server.test.ts",
+    "build:av": "node scripts/build-av-editor.mjs",
+    "predev": "npm run build:av",
+    "test:av": "npm --prefix apps/av-editor test -- --watch=false"
   },
   "overrides": {
     "rolldown": "1.2.1",

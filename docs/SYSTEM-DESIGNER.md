@@ -1,5 +1,19 @@
 # System designer: drawings, BOM revisions and cable labels
 
+## Interactive AV editor
+
+The Schematic tab now embeds the actual MIT ngDiagram AV schematic starter, built as local assets from `apps/av-editor`. It is not an iframe to the external demo. Its equipment palette, input/output device blocks, connector editor, manual wire routing, endpoint relinking, port navigation, minimap and light/dark themes remain available. Factory opens it in its dark palette and provides full-screen mode for desktop design work.
+
+Existing Factory projects load directly; no migration/import step is required. Edits automatically update the current project's equipment instances, equipment specifications and cable records through a same-origin, source-checked, generation-checked and schema-validated bridge. The editor receives technical equipment data only, without BOM prices or account credentials. Changing an equipment specification updates the other instances of that BOM item; tags and locations remain per instance. Existing rack positions and costs are retained.
+
+Project BOM equipment appears in the palette with a BOM badge. Dragging it places another instance; edit shared specifications on the canvas or in Factory's properties panel. The other palette entries are starter templates, and **Add device** creates a custom template. Template changes persist per project. Dropping a new template creates a BOM line with unknown cost, and repeated placements of that template reuse its BOM identity. Removing instances keeps the BOM line and quantity for review. Factory's **BOM links & rack properties** panel sets cable lengths, cable BOM associations and rack positions for the canvas selection.
+
+Unfinished cable stubs persist as drafts, carry their metadata through reconnection and appear as outstanding design checks. Only completed connections enter the cable schedule and label PDF. Saved drawing revisions preserve unfinished stubs as well as manual routes and port geometry.
+
+The embedded **Export** menu downloads the current working design as PNG or vector DXF. Use Factory's saved revision controls for revision-specific SVG/PDF sets and cable labels. The schematic SVG/PDF renderer now uses the editor's measured ports and routed wire points, two-column device blocks and a Soblabs engineering sheet border/title block. Long device/port text is shortened on the drawing; full equipment details remain in the PDF schedules. Multi-sheet schematic pagination remains future work.
+
+Upstream provenance, license and build instructions are in `apps/av-editor/FACTORY-INTEGRATION.md`. The root build compiles both applications, so the existing Render service needs no second service or URL. Generated editor assets are ignored by Git. The Angular framework was patched to 21.2.25 while ng-diagram stays pinned to the upstream-tested 1.3.0 release.
+
 The working designer remains linked to the selected project's live BOM. Equipment instances share BOM item identities, port specifications, rack heights and cable mappings. Cable paths now use signal colours; dashed paths identify missing BOM links. Cable IDs are checked for blanks/duplicates, and new connections receive an unused C-number.
 
 ## Save a coordinated revision
@@ -27,4 +41,4 @@ Drawing history uses the existing workspace persistence: browser-local in the de
 
 The requested reference is https://technipatch.com/examples. Its server returned HTTP 403/error 1010 to this environment, so its exact examples could not be reviewed. This implementation follows the user's priorities: system schematics, cable labels, drawing exports and BOM association. It does not claim feature parity or import Technipatch project files.
 
-Further designer work includes reusable equipment/port libraries, rooms/zones, manual cable waypoints and routing, multi-sheet schematics, connector/adaptor specifications, and dedicated label-printer templates. Rack multi-bay/front-back layouts remain separate work; the current rack view is one 42U elevation.
+Further designer work includes richer rooms/zones, multi-sheet schematics, connector/adaptor specifications, and dedicated label-printer templates. Rack multi-bay/front-back layouts remain separate work; the current rack view is one 42U elevation.

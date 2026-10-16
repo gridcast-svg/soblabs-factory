@@ -57,6 +57,7 @@ export function captureDrawingSet(
     items: structuredClone(project.items),
     devices: structuredClone(project.devices),
     connections: structuredClone(project.connections),
+    avDrafts: structuredClone(project.avDrafts),
   };
 }
 
@@ -71,6 +72,7 @@ export function drawingProject(drawing: DrawingSet): Project {
     items: drawing.items,
     devices: drawing.devices,
     connections: drawing.connections,
+    avDrafts: drawing.avDrafts,
   };
 }
 
