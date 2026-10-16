@@ -36,7 +36,14 @@ const server = http.createServer((req, res) => {
   res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
+  // The AV document is intentionally embedded by Factory on the same origin.
+  // Keep every other page protected against framing, including external sites.
+  const pathname = new URL(req.url || "/", "http://localhost").pathname;
+  const editorDocument = pathname === "/av-editor/index.html" || pathname === "/av-editor/";
+  res.setHeader(
+    "Content-Security-Policy",
+    editorDocument ? "frame-ancestors 'self'" : "frame-ancestors 'none'",
+  );
   if (req.url !== "/healthz" && !authorized(req.headers.authorization)) {
     res.writeHead(401, {
       "WWW-Authenticate": 'Basic realm="Soblabs sandbox", charset="UTF-8"',
