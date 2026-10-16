@@ -91,6 +91,21 @@ test("sandbox gateway protects pages and assets and verifies upstream health", a
         page.getByText("AV edits linked to this project's BOM", { exact: true }),
       ).toBeVisible();
       assert.equal((await editor.locator("app-device-node").count()) > 0, true);
+      await page.getByRole("button", { name: "LED configurator", exact: true }).click();
+      await expect(page.locator(".ws-led-svg [data-cell]")).toHaveCount(72);
+      await page.getByRole("tab", { name: "Cabinet", exact: true }).click();
+      await page.getByLabel("Maximum cabinet power (W)", { exact: true }).fill("200");
+      await page.getByRole("tab", { name: "Processing", exact: true }).click();
+      await page.getByLabel("Pixels per data port", { exact: true }).fill("655360");
+      await expect(page.locator(".ws-led-stagefoot")).toContainText("12 data runs");
+      const file = page.waitForEvent("download");
+      await page.getByRole("button", { name: "Export LED PDF", exact: true }).click();
+      const stream = await (await file).createReadStream();
+      const chunks: Buffer[] = [];
+      for await (const chunk of stream) chunks.push(Buffer.from(chunk));
+      const pdf = Buffer.concat(chunks);
+      assert.equal(pdf.subarray(0, 4).toString(), "%PDF");
+      assert.ok(pdf.length > 1000);
       assert.deepEqual(errors, []);
     } finally {
       await browser.close();
