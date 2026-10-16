@@ -40,4 +40,6 @@ npm run build
 PORT=10000 npm run start:sandbox
 ```
 
-Run `npm run test:sandbox` after building. `tests/sandbox-server.test.ts` creates disposable test credentials in memory and verifies denied requests, static-asset access, valid access, and health status against the built Node output. It never uses or prints real credentials.
+Run `npm run test:sandbox` after building. This check requires Playwright Chromium (`npx playwright install chromium`), or an installed Chromium selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE`. `tests/sandbox-server.test.ts` creates disposable test credentials in memory and verifies denied requests, static-asset access, valid access, health status, and the AV editor opening in a real browser through the production gateway. It never uses or prints real credentials.
+
+The embedded AV document permits same-origin framing with `frame-ancestors 'self'`. Other pages retain `frame-ancestors 'none'`. Test through `start:sandbox`, since starting Nitro directly bypasses these gateway headers.
