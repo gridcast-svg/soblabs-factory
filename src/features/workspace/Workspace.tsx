@@ -33,6 +33,7 @@ import { blankProject, reconcile, totals, uid, stateSchema } from "./model";
 import { download } from "./files";
 import { supabase } from "@/integrations/supabase/client";
 import "./workspace.css";
+import "./boldcase.css";
 const nav = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "projects", label: "Projects", icon: FolderKanban },
@@ -57,7 +58,7 @@ function WorkspaceShell() {
   const [page, setPage] = useState<Page>("overview");
   const pageMeta = nav.find((x) => x.id === page)!;
   return (
-    <div className="ws-app">
+    <div className="ws-app ws-boldcase">
       <aside className="ws-sidebar">
         <a href="/" className="ws-brand">
           <img src="/branding/soblabs-logo.png" alt="Soblabs" />
@@ -68,9 +69,18 @@ function WorkspaceShell() {
         <div className="ws-workspace-label">YOUR WORKSPACE</div>
         <nav>
           {nav.map(({ id, label, icon: Icon }, n) => (
-            <button className={page === id ? "active" : ""} key={id} onClick={() => setPage(id)}>
+            <button
+              className={page === id ? "active" : ""}
+              key={id}
+              aria-label={label}
+              aria-current={page === id ? "page" : undefined}
+              onClick={() => setPage(id)}
+            >
               <Icon size={18} />
               <span>{label}</span>
+              <small className="ws-nav-index" aria-hidden="true">
+                {String(n + 1).padStart(2, "0")}
+              </small>
               {id === "meetings" &&
                 p.meetings.filter((m) => m.status === "Needs review").length > 0 && (
                   <b>{p.meetings.filter((m) => m.status === "Needs review").length}</b>
@@ -202,12 +212,17 @@ function Overview({ navigate }: { navigate: (p: Page) => void }) {
           </button>
         </div>
         <div className="ws-hero-art" aria-hidden="true">
+          <span className="ws-art-issue">01 / DISPLAY STUDY</span>
           <div className="ws-art-grid">
             {Array.from({ length: 32 }, (_, i) => (
               <i key={i} />
             ))}
           </div>
-          <span className="ws-art-label">DESIGN / CONNECT / DELIVER</span>
+          <div className="ws-art-caption">
+            <span className="ws-art-label">DESIGN / CONNECT / DELIVER</span>
+            <strong>{p.name}</strong>
+            <ArrowUpRight size={22} />
+          </div>
         </div>
       </div>
       <div className="ws-section-heading">
