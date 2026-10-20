@@ -12,7 +12,7 @@ export class ThemeToggleComponent {
   private readonly document = inject(DOCUMENT);
 
   activeTheme = signal<'light' | 'dark'>(
-    this.document.documentElement.dataset['theme'] === 'light' ? 'light' : 'dark',
+    this.document.documentElement.dataset['theme'] === 'dark' ? 'dark' : 'light',
   );
 
   toggleTheme(): void {
