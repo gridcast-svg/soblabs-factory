@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { blankProject, exampleState, stateSchema } from "./model";
 import type { Project, WorkspaceState } from "./model";
+import { trackRecentWork } from "./recent-work";
 const KEY = "soblabs-design-sandbox-v1";
 type Store = {
   state: WorkspaceState;
@@ -71,7 +72,7 @@ export function WorkspaceProvider({
     };
   }, [mode]);
   function persist(next: WorkspaceState) {
-    next = stateSchema.parse(next);
+    next = stateSchema.parse(state ? trackRecentWork(state, next) : next);
     if (error) throw new Error(error);
     if (state) setHistory((h) => [...h.slice(-29), state]);
     setRaw(next);

@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/model.test.ts tests/security.test.ts tests/crm.test.ts tests/drawings.test.ts tests/av-editor.test.ts tests/led-planner.test.ts tests/projection.test.ts",
+    "test": "tsx --test tests/model.test.ts tests/security.test.ts tests/crm.test.ts tests/drawings.test.ts tests/av-editor.test.ts tests/led-planner.test.ts tests/projection.test.ts tests/dashboard.test.ts",
     "test:browser": "playwright test",
     "start": "node .output/server/index.mjs",
     "start:sandbox": "node scripts/sandbox-server.mjs",

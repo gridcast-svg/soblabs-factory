@@ -198,6 +198,21 @@ export const projectSchema = z.object({
   projectionDesigns: z.array(projectionDesignSchema).max(50).default([]),
 });
 export type Project = z.infer<typeof projectSchema>;
+export const workSectionSchema = z.enum([
+  "projects",
+  "bom",
+  "designer",
+  "led",
+  "projection",
+  "meetings",
+]);
+export type WorkSection = z.infer<typeof workSectionSchema>;
+const recentWorkSchema = z.object({
+  projectId: z.string(),
+  section: workSectionSchema,
+  editedAt: z.string().datetime(),
+});
+export type RecentWork = z.infer<typeof recentWorkSchema>;
 export const stateSchema = z
   .object({
     version: z.literal(1),
@@ -206,6 +221,7 @@ export const stateSchema = z
     accounts: z.array(accountSchema).default([]),
     deals: z.array(dealSchema).default([]),
     activities: z.array(activitySchema).default([]),
+    recentWork: z.array(recentWorkSchema).max(100).default([]),
   })
   .superRefine((state, ctx) => {
     for (const [label, entries] of [
