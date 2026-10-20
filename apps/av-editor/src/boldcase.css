@@ -1,0 +1,200 @@
+/* Boldcase adaptation for the embedded Factory editor.
+   Attribution and MIT notice: /licenses/boldcase.txt. Font: SIL OFL. */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/fonts/bricolage-grotesque-variable.ttf') format('truetype');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+html[data-theme] {
+  --av-paper: #f2eee5;
+  --av-surface: #fbf8f1;
+  --av-inset: #e7e2d7;
+  --av-ink: #0e0e0c;
+  --av-muted: #625f58;
+  --av-line: #b8b2a6;
+  --av-border: #38362f;
+  --av-lime: #d8ff3d;
+  --av-lilac: #e6e0f2;
+  --av-focus: #b34326;
+  --av-display: 'Bricolage Grotesque', Inter, Arial, sans-serif;
+  --av-color-accent: #365c30;
+  --av-color-selection-border: #365c30;
+  --av-color-selection-halo: #365c3033;
+  --av-color-wire-stroke: #625f58;
+  --av-list-item-bg: var(--av-paper);
+  --ngd-ui-bg-primary-default: var(--av-surface);
+  --ngd-ui-bg-secondary-default: var(--av-paper);
+  --ngd-ui-bg-tertiary-default: var(--av-inset);
+  --ngd-ui-bg-tertiary-selected: var(--av-lilac);
+  --ngd-ui-stroke-primary-default: var(--av-line);
+  --ngd-ui-stroke-secondary-default: var(--av-line);
+  --ngd-ui-stroke-primary-highlight: var(--av-color-accent);
+  --ngd-ui-stroke-primary-focus: var(--av-focus);
+  --ngd-ui-separator-primary-default: var(--av-line);
+  --ngd-txt-primary-default: var(--av-ink);
+  --ngd-txt-secondary-default: var(--av-muted);
+  --ngd-txt-tertiary-default: var(--av-muted);
+  --ngd-txt-quaternary-default: var(--av-muted);
+  --ngd-txt-info-default: var(--av-color-accent);
+  --ngd-button-primary-bg-default: var(--av-lime);
+  --ngd-button-primary-bg-hover: #c5ed21;
+  --ngd-button-primary-bg-active: #b4d91e;
+  --ngd-input-stroke-primary-default: var(--av-line);
+  --ngd-input-stroke-primary-focus: var(--av-focus);
+  --ngd-nav-button-icon-primary-default: var(--av-muted);
+  --ngd-nav-button-icon-primary-hover: var(--av-ink);
+  --ngd-nav-button-icon-primary-active: #0e0e0c;
+  --ngd-nav-button-icon-primary-pressed: var(--av-color-accent);
+  --ngd-nav-button-bg-primary-hover: var(--av-inset);
+  --ngd-node-bg-primary-default: var(--av-surface);
+  --ngd-node-bg-secondary-default: var(--av-inset);
+  --ngd-node-stroke-primary-default: var(--av-border);
+  --ngd-node-port-stroke-default: var(--av-muted);
+  --ngd-node-port-fill-default: var(--av-surface);
+  --ngd-background-dot-color: #b9b2a4;
+  --ngd-ui-canvas-dots-default: #b9b2a4;
+  --ngd-minimap-node-color: var(--av-muted);
+  --ngd-focus-ring-element: var(--av-focus);
+  --ngd-box-selection-border-color: var(--av-color-accent);
+  --ngd-box-selection-background: var(--av-color-selection-halo);
+  --ngd-shadow: #0e0e0c18;
+  background: var(--av-paper);
+  color: var(--av-ink);
+  color-scheme: light;
+}
+html[data-theme='dark'] {
+  --av-paper: #151612;
+  --av-surface: #24261f;
+  --av-inset: #303329;
+  --av-ink: #f2eee5;
+  --av-muted: #c1bdb1;
+  --av-line: #626555;
+  --av-border: #9a9e87;
+  --av-lilac: #40394d;
+  --av-focus: #ff9995;
+  --av-color-accent: #d8ff3d;
+  --av-color-selection-border: #d8ff3d;
+  --av-color-selection-halo: #d8ff3d33;
+  --av-color-wire-stroke: #c1bdb1;
+  --ngd-background-dot-color: #45483d;
+  --ngd-ui-canvas-dots-default: #45483d;
+  color-scheme: dark;
+}
+html[data-theme] body {
+  font-family: Inter, Arial, sans-serif;
+  color: var(--av-ink);
+}
+html[data-theme] :is(h1, h2, h3, .h7, .h9, .section-title, .factory-title) {
+  font-family: var(--av-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+html[data-theme] :focus-visible {
+  outline: 2px solid var(--av-focus);
+  outline-offset: 3px;
+}
+html[data-theme] .factory-title {
+  font-size: 24px;
+  letter-spacing: -0.06em;
+}
+html[data-theme] .factory-title .brand-sob {
+  color: #e64f56;
+}
+html[data-theme='dark'] .factory-title .brand-sob {
+  color: #ff696b;
+}
+html[data-theme] .factory-title strong {
+  font-family: Inter, Arial, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--av-muted);
+  opacity: 1;
+}
+html[data-theme] .top-navbar {
+  border-color: var(--av-border);
+  border-radius: 16px;
+}
+html[data-theme] :is(app-library-sidebar, app-properties-sidebar) .sidebar {
+  border-color: var(--av-border);
+  border-radius: 16px;
+  box-shadow: none;
+}
+html[data-theme] .view-button {
+  border-color: var(--av-border);
+  border-radius: 999px;
+  padding: 7px 12px;
+}
+html[data-theme] :is(app-export-menu .trigger, .add-button, .save-button) {
+  border: 1px solid #0e0e0c;
+  border-radius: 999px;
+  color: #0e0e0c;
+  font-weight: 600;
+}
+html[data-theme] app-ports-editor .tab.is-active {
+  color: #0e0e0c;
+}
+html[data-theme] .theme-toggle .toggle-indicator.active .icon {
+  background-color: #0e0e0c;
+}
+html[data-theme] .device-row {
+  border-color: var(--av-line);
+  border-radius: 10px;
+}
+html[data-theme] .device-row:hover {
+  border-color: var(--av-color-accent);
+}
+html[data-theme] .device-row__chip {
+  border-radius: 999px;
+  background: var(--av-lilac);
+  color: var(--av-ink);
+  border-color: var(--av-line);
+  font-size: 9px;
+}
+html[data-theme] .is-match {
+  background: var(--av-lime);
+  color: #0e0e0c;
+}
+html[data-theme] .device-node {
+  border-radius: 10px;
+}
+html[data-theme] app-device-node {
+  --card-border-color: var(--av-border);
+  --card-header-bg: var(--av-lilac);
+}
+html[data-theme] .device-node__header {
+  border-radius: 10px 10px 0 0;
+}
+html[data-theme] .device-node__id {
+  font-family: Inter, Arial, sans-serif;
+  font-weight: 600;
+}
+html[data-theme] .wire-label {
+  background: var(--av-paper);
+  border-radius: 3px;
+  color: var(--av-ink);
+}
+html[data-theme] app-minimap-panel .panel {
+  border-color: var(--av-border);
+  box-shadow: none;
+  border-radius: 16px;
+}
+html[data-theme] :is(input, select, textarea) {
+  accent-color: var(--av-color-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+html[data-theme] app-ports-editor .tabs {
+  background: var(--av-inset);
+}
+html[data-theme] ng-diagram {
+  background: var(--av-paper);
+}

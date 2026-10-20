@@ -158,3 +158,26 @@ test("custom AV library templates persist per project without creating BOM items
     ),
   ).toBe(3);
 });
+
+test("AV theme preference survives reloads without changing project drawings", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "System designer", exact: true }).click();
+  const editor = page.frameLocator('iframe[title="Soblabs AV schematic canvas"]');
+  await expect(editor.locator("app-device-node")).toHaveCount(2);
+  const before = await page.evaluate(() => localStorage.getItem("soblabs-design-sandbox-v1"));
+  await editor.getByRole("button", { name: "Switch to dark theme", exact: true }).click();
+  await expect(
+    editor.getByRole("button", { name: "Switch to light theme", exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await page.getByRole("button", { name: "System designer", exact: true }).click();
+  await expect(editor.locator("app-device-node")).toHaveCount(2);
+  await editor.getByRole("button", { name: "Switch to light theme", exact: true }).click();
+  await page.reload();
+  await page.getByRole("button", { name: "System designer", exact: true }).click();
+  await expect(
+    editor.getByRole("button", { name: "Switch to dark theme", exact: true }),
+  ).toBeVisible();
+  await expect(editor.locator("app-device-node")).toHaveCount(2);
+  expect(await page.evaluate(() => localStorage.getItem("soblabs-design-sandbox-v1"))).toBe(before);
+});

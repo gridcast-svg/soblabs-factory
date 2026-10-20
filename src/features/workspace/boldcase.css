@@ -724,3 +724,20 @@
 .ws-boldcase .ws-projection-info {
   color: #365c5e;
 }
+/* Match the expanded editor's outer frame to the paper workspace. */
+.ws-boldcase .ws-av-stage-actions {
+  background: var(--ws-paper);
+  color: var(--ws-ink);
+  border-bottom-color: var(--ws-line);
+}
+.ws-boldcase .ws-av-stage-actions strong span {
+  color: #625f58;
+}
+.ws-boldcase .ws-av-frame .ws-av-stage-actions .ws-button {
+  background: var(--ws-bone);
+  color: var(--ws-ink);
+  border-color: var(--ws-ink);
+}
+.ws-boldcase .ws-av-frame .ws-av-stage-actions .ws-button:hover {
+  background: #e5e0d5;
+}
