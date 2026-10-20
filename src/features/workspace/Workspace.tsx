@@ -63,11 +63,7 @@ function WorkspaceShell() {
       <aside className="ws-sidebar">
         <a href="/" className="ws-brand">
           <img src="/branding/soblabs-logo.png" alt="Soblabs" />
-          <span>
-            FACTORY <i>•</i> BUSINESS WORKSPACE
-          </span>
         </a>
-        <div className="ws-workspace-label">YOUR WORKSPACE</div>
         <nav>
           {nav.map(({ id, label, icon: Icon }, n) => (
             <button
