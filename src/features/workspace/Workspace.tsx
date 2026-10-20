@@ -27,6 +27,7 @@ import { formatMoney } from "./format";
 import { Designer } from "./Designer";
 import { Meetings } from "./Meetings";
 import { Crm } from "./Crm";
+import { DashboardStart } from "./DashboardStart";
 import { Led } from "./Led";
 import { Projection } from "./Projection";
 import { blankProject, reconcile, totals, uid, stateSchema } from "./model";
@@ -166,17 +167,17 @@ function WorkspaceShell() {
           {page === "overview" ? (
             <Overview navigate={setPage} />
           ) : page === "projects" ? (
-            <Projects navigate={setPage} />
+            <Projects key={p.id} navigate={setPage} />
           ) : page === "bom" ? (
-            <Bom />
+            <Bom key={p.id} />
           ) : page === "designer" ? (
-            <Designer />
+            <Designer key={p.id} />
           ) : page === "led" ? (
             <Led key={p.id} />
           ) : page === "projection" ? (
             <Projection key={p.id} />
           ) : page === "meetings" ? (
-            <Meetings />
+            <Meetings key={p.id} />
           ) : page === "crm" ? (
             <Crm />
           ) : (
@@ -198,33 +199,7 @@ function Overview({ navigate }: { navigate: (p: Page) => void }) {
   const [newTask, setNewTask] = useState("");
   return (
     <>
-      <div className="ws-hero">
-        <div>
-          <div className="ws-eyebrow">FROM FIRST CONVERSATION TO FINAL INSTALL</div>
-          <h1>
-            Your next great system
-            <br />
-            starts here<span>.</span>
-          </h1>
-          <p>Bring the design, the details, and the delivery together.</p>
-          <button className="ws-button primary" onClick={() => navigate("designer")}>
-            Open system designer <ArrowUpRight size={16} />
-          </button>
-        </div>
-        <div className="ws-hero-art" aria-hidden="true">
-          <span className="ws-art-issue">01 / DISPLAY STUDY</span>
-          <div className="ws-art-grid">
-            {Array.from({ length: 32 }, (_, i) => (
-              <i key={i} />
-            ))}
-          </div>
-          <div className="ws-art-caption">
-            <span className="ws-art-label">DESIGN / CONNECT / DELIVER</span>
-            <strong>{p.name}</strong>
-            <ArrowUpRight size={22} />
-          </div>
-        </div>
-      </div>
+      <DashboardStart navigate={navigate} />
       <div className="ws-section-heading">
         <div>
           <h2>{p.name}</h2>

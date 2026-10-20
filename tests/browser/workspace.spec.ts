@@ -42,7 +42,7 @@ test("project, BOM pricing and persistence", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(page.getByText("Your next great system")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Workspace", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page.getByRole("textbox", { name: "New project name" }).fill("Test installation");
   await page.getByRole("button", { name: "Create project" }).click();
