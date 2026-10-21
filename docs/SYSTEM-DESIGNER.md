@@ -46,3 +46,11 @@ Drawing history uses the existing workspace persistence: browser-local in the de
 The requested reference is https://technipatch.com/examples. Its server returned HTTP 403/error 1010 to this environment, so its exact examples could not be reviewed. This implementation follows the user's priorities: system schematics, cable labels, drawing exports and BOM association. It does not claim feature parity or import Technipatch project files.
 
 Further designer work includes richer rooms/zones, multi-sheet schematics, connector/adaptor specifications, and dedicated label-printer templates. Rack multi-bay/front-back layouts remain separate work; the current rack view is one 42U elevation.
+
+## Rack elevation layout
+
+The rack uses Boldcase paper surfaces, alternating unit bands, lilac equipment and chartreuse selection. The library, rack canvas and properties inspector have independent bounded scrolling areas; the grid no longer lets the tall rack overflow and clip behind the drawing-revision section.
+
+**Fit rack** fits the full 42U elevation to the available panel height at desktop sizes. **Actual size** uses 22 px per U with vertical scrolling when required. **Expand rack designer** fills the app window; Return to Factory or Escape restores it. The fit control also returns the rack scroll position to the top.
+
+Drag placement uses the actual rendered unit height and current client coordinates, so fitted and scrolled views produce the same starting U. The full device height is kept inside the rack on drop (a 2U device dropped at U42 starts at U41). Existing invalid positions and zero-height/non-rack devices stay visible in Needs placement for correction in Properties; no existing positions are changed merely by opening the designer. Saved drawing/BOM associations and print exports keep their existing behavior.

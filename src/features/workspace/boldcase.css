@@ -595,7 +595,7 @@
   color: #725329;
 }
 /* Drafting surfaces have their own palette, including controls and local tokens. */
-.ws-boldcase :is(.ws-led-stage, .ws-av-frame, .ws-canvas) {
+.ws-boldcase :is(.ws-led-stage, .ws-av-frame) {
   --ws-cyan: #87e5e9;
   --ws-mint: #91dfc5;
   --ws-muted: #a7b6c9;
@@ -633,12 +633,6 @@
 .ws-boldcase .ws-led-stage.is-expanded {
   border-radius: 0;
   border: 0;
-}
-.ws-boldcase .ws-canvas .ws-rack-view h3 {
-  color: #e6edf5;
-}
-.ws-boldcase .ws-canvas .ws-rack-view p {
-  color: #a7b6c9;
 }
 @media (min-width: 2400px) {
   .ws-boldcase .ws-content {

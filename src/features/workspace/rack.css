@@ -1,0 +1,189 @@
+.ws-boldcase .ws-rack-editor {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+  border: 1px solid var(--ws-ink);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ws-paper);
+  height: clamp(620px, calc(100dvh - 270px), 1200px);
+  min-height: 0;
+}
+.ws-boldcase .ws-rack-editor.is-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.ws-boldcase .ws-rack-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--ws-line);
+  flex-shrink: 0;
+}
+.ws-boldcase .ws-rack-toolbar strong {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ws-boldcase .ws-rack-toolbar .ws-button {
+  padding: 6px 12px;
+}
+.ws-boldcase .ws-rack-editor .ws-rack-designer {
+  grid-template-columns: 240px minmax(0, 1fr) 280px;
+  grid-template-rows: minmax(0, 1fr);
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+}
+.ws-boldcase .ws-rack-designer > :is(.ws-library, .ws-inspector, .ws-canvas) {
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  grid-column: auto;
+}
+.ws-boldcase .ws-rack-designer > .ws-inspector {
+  border-top: 0;
+}
+.ws-boldcase .ws-rack-designer .ws-canvas {
+  overflow: hidden;
+  background: var(--ws-paper);
+  color: var(--ws-ink);
+  color-scheme: light;
+}
+.ws-boldcase .ws-rack-view {
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) minmax(160px, 280px);
+  justify-content: center;
+  align-content: start;
+  align-items: start;
+  gap: 32px;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 20px 24px 20px 44px;
+}
+.ws-boldcase .ws-rack-column {
+  min-width: 0;
+}
+.ws-boldcase .ws-rack-heading {
+  padding-bottom: 16px;
+}
+.ws-boldcase .ws-rack-view h3 {
+  font-size: 16px;
+  color: var(--ws-ink);
+}
+.ws-boldcase .ws-rack-view p {
+  color: var(--ws-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 7px 0 14px;
+}
+.ws-boldcase .ws-rack-heading .ws-segment {
+  width: fit-content;
+}
+.ws-boldcase .ws-rack-heading .ws-segment button {
+  padding: 5px 10px;
+}
+.ws-boldcase .ws-rack {
+  width: 100%;
+  border-color: #4a4842;
+  background: var(--ws-bone);
+  border-radius: 4px;
+}
+.ws-boldcase .ws-rack-slot {
+  height: var(--ws-rack-unit, 22px);
+  border-color: #c4c0b6;
+}
+.ws-boldcase .ws-rack-slot:nth-child(odd) {
+  background: #e8e3d7;
+}
+.ws-boldcase .ws-rack-slot span {
+  left: -32px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4a4842;
+  font: 9px var(--ws-mono);
+}
+.ws-boldcase .ws-rack-device {
+  border-color: #665577;
+  background: #e6e0f2;
+  color: var(--ws-ink);
+  font-size: 11px;
+  line-height: 1;
+  padding: 0 8px;
+  gap: 7px;
+}
+.ws-boldcase .ws-rack-device:hover {
+  background: #d8cdec;
+  border-color: var(--ws-ink);
+}
+.ws-boldcase .ws-rack-device.selected {
+  background: var(--ws-lime);
+  border-color: #365c30;
+  box-shadow: inset 0 0 0 1px #365c30;
+}
+.ws-boldcase .ws-rack-device-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.ws-boldcase .ws-rack-device small {
+  font: 9px var(--ws-mono);
+  flex-shrink: 0;
+}
+.ws-boldcase .ws-rack-led {
+  background: #365c30;
+  flex-shrink: 0;
+}
+.ws-boldcase .ws-rack-unplaced {
+  min-width: 0;
+}
+.ws-boldcase .ws-rack-unplaced .ws-library-item {
+  font-size: 11px;
+}
+.ws-boldcase .ws-rack-unplaced .ws-library-item span {
+  overflow-wrap: anywhere;
+}
+.ws-boldcase .ws-rack-designer .ws-panel-label {
+  margin-left: 0;
+}
+@media (max-width: 1500px) {
+  .ws-boldcase .ws-rack-editor .ws-rack-designer {
+    grid-template-columns: 190px minmax(0, 1fr) 240px;
+  }
+  .ws-boldcase .ws-rack-view {
+    gap: 20px;
+    padding-left: 38px;
+    padding-right: 16px;
+  }
+}
+@media (max-width: 1250px) {
+  .ws-boldcase .ws-rack-view {
+    grid-template-columns: minmax(240px, 1fr);
+  }
+}
+@media (max-width: 1000px) {
+  .ws-boldcase .ws-rack-editor .ws-rack-designer {
+    grid-template-columns: 170px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 180px;
+  }
+  .ws-boldcase .ws-rack-designer > .ws-inspector {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--ws-line);
+  }
+}
