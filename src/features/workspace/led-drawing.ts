@@ -6,7 +6,13 @@ import {
   PRINT_POWER_CABLE_COLORS,
 } from "@/vendor/calculator-led-pro/routing/palette";
 
-export function ledRoutingSvg(g: LedGeometry, plan: LedPlan, layer: LedLayer, print = false) {
+export function ledRoutingSvg(
+  g: LedGeometry,
+  plan: LedPlan,
+  layer: LedLayer,
+  print = false,
+  theme: "light" | "dark" = "light",
+) {
   const l = plan.layout;
   if (!l) return "";
   const scale = Math.min(1040 / l.widthMm, 570 / l.heightMm);
@@ -18,13 +24,14 @@ export function ledRoutingSvg(g: LedGeometry, plan: LedPlan, layer: LedLayer, pr
     top = (710 - h) / 2;
   const runs = layer === "data" ? plan.dataRuns : plan.powerRuns;
   const capacity = layer === "data" ? plan.dataCapacity : plan.powerCapacity;
-  const text = print ? "#24364a" : "#b9c8da",
-    grid = print ? "#a9bdcd" : "#394b60";
+  const paper = print || theme === "light";
+  const text = paper ? "#24364a" : "#b9c8da",
+    grid = paper ? "#a9bdcd" : "#394b60";
   const assignments = new Map<string, { run: number; order: number }>();
   for (const [index, run] of runs.entries())
     run.forEach((p, order) => assignments.set(`${p.x}:${p.y}`, { run: index, order }));
   const color = (n: number) =>
-    print
+    paper
       ? (layer === "data" ? PRINT_DATA_CABLE_COLORS : PRINT_POWER_CABLE_COLORS)[
           n % (layer === "data" ? PRINT_DATA_CABLE_COLORS.length : PRINT_POWER_CABLE_COLORS.length)
         ]!
@@ -52,5 +59,5 @@ export function ledRoutingSvg(g: LedGeometry, plan: LedPlan, layer: LedLayer, pr
       `<g pointer-events="none"><polyline points="${points}" stroke="${stroke}" stroke-width="2.3" fill="none" ${fault ? 'stroke-dasharray="5 4"' : ""}/><line x1="${sx}" y1="${sy}" x2="${sx}" y2="${top + h + 20}" stroke="${stroke}" stroke-width="1" stroke-dasharray="3 4"/><circle cx="${sx}" cy="${sy}" r="${Math.min(5, cw / 5, ch / 5)}" fill="${stroke}"/></g>`,
     );
   }
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 780" width="1200" height="780" aria-label="LED ${layer} routing drawing"><rect width="1200" height="780" fill="${print ? "#ffffff" : "#101620"}"/><g font-family="Arial,sans-serif"><text x="36" y="30" fill="${text}" font-size="14">${layer === "data" ? "DATA" : "POWER"} ROUTING · ${l.columns} columns × ${l.rows} rows · ${l.cabinets} cabinets</text><line x1="${left}" y1="${top - 20}" x2="${left + w}" y2="${top - 20}" stroke="${grid}"/><text x="600" y="${top - 28}" text-anchor="middle" font-size="12" fill="${text}">${l.widthMm} mm · ${l.pixelWidth} px</text><text x="${left - 14}" y="${top + h / 2}" text-anchor="middle" transform="rotate(-90 ${left - 14} ${top + h / 2})" font-size="12" fill="${text}">${l.heightMm} mm · ${l.pixelHeight} px</text>${parts.join("")}<text x="36" y="746" fill="${text}" font-size="12">${runs.filter((r) => r.length).length} runs · ${capacity === null ? "Capacity not specified" : `${capacity} cabinets per ${layer === "data" ? "port" : "circuit"}`} · Dot = start; dashed drop = main to floor</text><text x="36" y="767" fill="${text}" font-size="11">Routing view as drawn. Confirm front/rear orientation, connectors and cable paths on site.</text></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 780" width="1200" height="780" aria-label="LED ${layer} routing drawing"><rect width="1200" height="780" fill="${print ? "#ffffff" : theme === "light" ? "#f2eee5" : "#151612"}"/><g font-family="Arial,sans-serif"><text x="36" y="30" fill="${text}" font-size="14">${layer === "data" ? "DATA" : "POWER"} ROUTING · ${l.columns} columns × ${l.rows} rows · ${l.cabinets} cabinets</text><line x1="${left}" y1="${top - 20}" x2="${left + w}" y2="${top - 20}" stroke="${grid}"/><text x="600" y="${top - 28}" text-anchor="middle" font-size="12" fill="${text}">${l.widthMm} mm · ${l.pixelWidth} px</text><text x="${left - 14}" y="${top + h / 2}" text-anchor="middle" transform="rotate(-90 ${left - 14} ${top + h / 2})" font-size="12" fill="${text}">${l.heightMm} mm · ${l.pixelHeight} px</text>${parts.join("")}<text x="36" y="746" fill="${text}" font-size="12">${runs.filter((r) => r.length).length} runs · ${capacity === null ? "Capacity not specified" : `${capacity} cabinets per ${layer === "data" ? "port" : "circuit"}`} · Dot = start; dashed drop = main to floor</text><text x="36" y="767" fill="${text}" font-size="11">Routing view as drawn. Confirm front/rear orientation, connectors and cable paths on site.</text></g></svg>`;
 }

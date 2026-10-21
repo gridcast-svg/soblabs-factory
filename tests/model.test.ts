@@ -70,3 +70,19 @@ test("workbook revisions retain drawing specifications and omitted BOM items", (
   assert.equal(merged[0]!.rackU, 2);
   assert.equal(merged[0]!.ports[0]!.connector, "HDMI");
 });
+
+test("rack drops use measured row scale, retain full equipment height, and reject non-rack devices", async () => {
+  const { rackStartForDrop, fitsRack } = await import("../src/features/workspace/rack-layout.ts");
+  for (const unit of [12.5, 22]) {
+    assert.equal(rackStartForDrop(1000 - 6.5 * unit, 1000, unit, 1), 7);
+    assert.equal(rackStartForDrop(1000 - 41.5 * unit, 1000, unit, 2), 41);
+    assert.equal(rackStartForDrop(1100, 1000, unit, 2), 1);
+    assert.equal(rackStartForDrop(-100, 1000, unit, 42), 1);
+  }
+  assert.equal(rackStartForDrop(0, 1000, 22, 0), null);
+  assert.equal(rackStartForDrop(0, 1000, 22, 48), null);
+  assert.equal(fitsRack(42, 2), false);
+  assert.equal(fitsRack(41, 2), true);
+  assert.equal(fitsRack(null, 1), false);
+  assert.equal(fitsRack(1, 0), false);
+});

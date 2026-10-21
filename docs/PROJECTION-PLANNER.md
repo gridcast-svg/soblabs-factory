@@ -107,3 +107,13 @@ repeat BOM application, saved PDF contents/pricing exclusion, Arena XML parsing,
 library import preview, persistence/project isolation and 1080p/4K drawing framing.
 The production build and `npm run test:sandbox` exercise AV, LED and projection
 tools plus actual LED/projection PDF downloads through the authenticated gateway.
+
+## Epson room example and paper canvas
+
+An untouched, empty projection setup opens on a labelled **preview** of an 8×10×3 m room, centred 4×2.25 m front-wall screen, one Epson EB-PQ2010W with ELPLM15 at 6.5 m throw. Opening the preview does not write project data. **Use Epson room example**, an edit, a save, or an explicit BOM update adopts it. Existing configured setups and equipment libraries are preserved. **Add Epson equipment** merges missing curated profiles without replacing local edits.
+
+The Room tab controls the plan-view boundary. Screen dimensions and nominal throw are checked against room dimensions; this is not a ceiling, obstacle or audience sightline model. The Equipment tab separates native panel resolution from displayed/pixel-shift resolution. The Epson example plans a 3840×2160 output raster while retaining the factual 1920×1080 panel specification. Older projects keep their native-raster behavior.
+
+Three PQ-series projectors and nine compatible conventional lenses are sourced from downloaded Epson documentation, with local PDF links in the library. See [source provenance](../public/specs/epson/README.md). The existing review checkbox still guards BOM application, and product costs remain unknown.
+
+Both planners use Boldcase paper canvases by default with a persistent dark-canvas option. SVG/PDF print exports retain a white background and high-contrast colors.

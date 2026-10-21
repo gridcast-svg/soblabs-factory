@@ -90,3 +90,9 @@ test prerequisites in `docs/IMPLEMENTATION.md`.
 
 After `npm run build`, `npm run test:sandbox` verifies the built application through
 the authenticated production gateway, including both the LED planner and AV editor.
+
+## Pixel pitch and display specifications
+
+Layout offers common pitch presets and custom millimetre targets. Cabinet width/height divided by target pitch is rounded to whole pixel counts (bounded to 1–100,000 per axis). The summary shows the actual horizontal and vertical pitch, pixel density and total display pixels; the requested target is never silently presented as an exact manufactured pitch. Cabinet dimension changes recalculate in target mode. Editing pixel counts explicitly returns to exact-pixel mode.
+
+Cabinet adds optional rated brightness (nits) and refresh rate (Hz). These values come from product specifications; neither is inferred from pixel pitch. Unknown values remain blank. Pitch target, brightness and refresh persist in saved designs, workspace backups and PDF reports. Existing layouts migrate to exact-pixel mode with unknown brightness/refresh.

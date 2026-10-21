@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Download, Maximize2, Save } from "lucide-react";
+import { ArrowRight, Download, Maximize2, Save, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
 import { useWorkspace } from "./store";
 import {
@@ -18,8 +18,12 @@ import type { LedDesign } from "./model";
 import "./led-planner.css";
 import { PlannerNumberField as NumberField } from "./PlannerNumberField";
 
+import { usePlannerTheme } from "./planner-theme";
+import { geometryForPitch } from "./led-specification";
+
 export function Led() {
   const { project: p, updateProject } = useWorkspace();
+  const { theme, toggleTheme } = usePlannerTheme();
   const g = p.led,
     c = p.ledPlanner,
     plan = calculateLedPlan(g, c),
@@ -48,8 +52,24 @@ export function Led() {
   const capacity = layer === "data" ? plan.dataCapacity : plan.powerCapacity;
   const patch = (change: Partial<LedPlannerConfig>) =>
     updateProject({ ...p, ledPlanner: { ...c, ...change } });
-  const geometry = (change: Partial<LedGeometry>) =>
-    updateProject({ ...p, led: { ...g, ...change } });
+  const geometry = (change: Partial<LedGeometry>) => {
+    const exact = "pixelWidth" in change || "pixelHeight" in change;
+    const next = { ...g, ...change };
+    updateProject({
+      ...p,
+      led:
+        !exact && c.requestedPitchMm !== null ? geometryForPitch(next, c.requestedPitchMm) : next,
+      ledPlanner: { ...c, requestedPitchMm: exact ? null : c.requestedPitchMm },
+    });
+  };
+  function choosePitch(pitch: number) {
+    updateProject({
+      ...p,
+      led: geometryForPitch(g, pitch),
+      ledPlanner: { ...c, requestedPitchMm: pitch },
+    });
+  }
+  const pitches = [0.9, 1.2, 1.25, 1.5, 1.56, 1.875, 2, 2.5, 2.6, 2.9, 3.91, 4.81, 6, 8, 10];
   useEffect(() => {
     if (!expanded) return;
     const overflow = document.body.style.overflow;
@@ -200,6 +220,45 @@ export function Led() {
                     {configNumber("rows", "Cabinet rows", false, true, 1, 5000)}
                   </>
                 )}
+                <label className="wide">
+                  Pixel pitch
+                  <select
+                    aria-label="Pixel pitch"
+                    value={
+                      c.requestedPitchMm === null
+                        ? "exact"
+                        : pitches.includes(c.requestedPitchMm)
+                          ? String(c.requestedPitchMm)
+                          : "custom"
+                    }
+                    onChange={(e) => {
+                      if (e.target.value === "exact") patch({ requestedPitchMm: null });
+                      else
+                        choosePitch(
+                          e.target.value === "custom"
+                            ? g.cabinetWidth / g.pixelWidth
+                            : Number(e.target.value),
+                        );
+                    }}
+                  >
+                    <option value="exact">Exact cabinet pixels</option>
+                    {pitches.map((pitch) => (
+                      <option key={pitch} value={pitch}>
+                        P{pitch} · {pitch} mm
+                      </option>
+                    ))}
+                    <option value="custom">Custom pixel pitch</option>
+                  </select>
+                </label>
+                {c.requestedPitchMm !== null && (
+                  <NumberField
+                    label="Target pixel pitch (mm)"
+                    value={c.requestedPitchMm}
+                    min={0.001}
+                    max={100}
+                    onChange={(value) => choosePitch(value!)}
+                  />
+                )}
                 {(
                   [
                     ["cabinetWidth", "Cabinet width (mm)"],
@@ -218,8 +277,9 @@ export function Led() {
                   />
                 ))}
                 <p className="wide ws-led-help">
-                  Exact cabinet pixels drive the resolution. Wall-fit always rounds down to whole
-                  cabinets.
+                  Pitch targets round to whole cabinet pixels; the actual horizontal and vertical
+                  pitch are shown below. Editing cabinet pixels switches back to exact mode.
+                  Brightness comes from the product specification, not pixel pitch.
                 </p>
                 <NumberField
                   label={`Supplier cost per m² (${p.currency})`}
@@ -234,6 +294,8 @@ export function Led() {
               <>
                 {textField("cabinetManufacturer", "Cabinet manufacturer")}
                 {textField("cabinetModel", "Cabinet model / part number")}
+                {configNumber("brightnessNits", "Rated brightness (nits)")}
+                {configNumber("refreshHz", "Refresh rate (Hz)", true, true)}
                 {configNumber("weightKg", "Cabinet weight (kg)")}
                 {configNumber("maxPowerW", "Maximum cabinet power (W)")}
                 {configNumber("typicalPowerW", "Typical cabinet power (W)")}
@@ -342,9 +404,18 @@ export function Led() {
           <section
             className={`ws-led-stage${expanded ? " is-expanded" : ""}`}
             aria-label="LED routing editor"
+            data-theme={theme}
           >
             <div className="ws-led-stagebar">
               <strong>{p.name} / LED routing</strong>
+              <button
+                className="ws-button ws-planner-theme"
+                aria-label={theme === "light" ? "Switch to dark canvas" : "Switch to light canvas"}
+                onClick={toggleTheme}
+              >
+                {theme === "light" ? <Moon size={14} /> : <Sun size={14} />}
+                {theme === "light" ? "Dark canvas" : "Paper canvas"}
+              </button>
               <button className="ws-button" onClick={() => setExpanded(!expanded)}>
                 <Maximize2 size={14} />
                 {expanded ? "Return to Factory" : "Expand LED planner"}
@@ -481,7 +552,7 @@ export function Led() {
                       selectCell(e.target);
                     }
                   }}
-                  dangerouslySetInnerHTML={{ __html: ledRoutingSvg(g, plan, layer) }}
+                  dangerouslySetInnerHTML={{ __html: ledRoutingSvg(g, plan, layer, false, theme) }}
                 />
               ) : (
                 <div className="ws-empty">{plan.issues[0]}</div>
@@ -555,6 +626,23 @@ export function Led() {
                     : `${plan.rigging.perPointKg.toFixed(1)} kg per point (cabinet weight only)`
                   : `${plan.rigging.onBottomCabinetKg.toFixed(1)} kg on bottom cabinet per column`
                 : "Cabinet weight not specified"}
+            </dd>
+            <dt>Actual pixel pitch (horizontal / vertical)</dt>
+            <dd>
+              {(g.cabinetWidth / g.pixelWidth).toFixed(3)} /{" "}
+              {(g.cabinetHeight / g.pixelHeight).toFixed(3)} mm
+            </dd>
+            <dt>Pixel density / display pixels</dt>
+            <dd>
+              {Math.round(
+                (1e6 * g.pixelWidth * g.pixelHeight) / (g.cabinetWidth * g.cabinetHeight),
+              ).toLocaleString()}{" "}
+              px/m² / {l ? (l.pixelWidth * l.pixelHeight).toLocaleString() : "—"} px
+            </dd>
+            <dt>Rated brightness / refresh</dt>
+            <dd>
+              {c.brightnessNits === null ? "Brightness not specified" : `${c.brightnessNits} nits`}{" "}
+              / {c.refreshHz === null ? "Refresh not specified" : `${c.refreshHz} Hz`}
             </dd>
             <dt>Derived pitch / 20/20 acuity distance</dt>
             <dd>

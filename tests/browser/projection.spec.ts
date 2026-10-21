@@ -11,6 +11,7 @@ test("equipment profiles, BOM updates, saved reports, Arena geometry and library
 }) => {
   const state = exampleState();
   state.projects[0]!.items[0]!.unitCost = 8181.23;
+  state.projects[0]!.projection.room = { widthM: 20, depthM: 20, heightM: 10 };
   state.projects.push(blankProject("Other projection project"));
   await page.addInitScript((state) => {
     if (!localStorage.getItem("soblabs-design-sandbox-v1"))
@@ -130,7 +131,7 @@ test("equipment profiles, BOM updates, saved reports, Arena geometry and library
     .selectOption({ label: "Other projection project" });
   await page.getByRole("button", { name: "Projection planner", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Load illustrative example", exact: true }),
+    page.getByRole("button", { name: "Use Epson room example", exact: true }),
   ).toBeVisible();
   expect(errors).toEqual([]);
 });

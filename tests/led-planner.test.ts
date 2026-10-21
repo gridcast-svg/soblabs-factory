@@ -208,3 +208,21 @@ test("saved designs retain isolated layouts, routes, project identity and versio
   );
   assert.deepEqual(parsed.projects[0]!.ledDesigns[0], first);
 });
+
+test("pixel-pitch targets round to whole cabinet pixels without inventing brightness", async () => {
+  const { geometryForPitch } = await import("../src/features/workspace/led-specification");
+  const p = blankProject();
+  const g = geometryForPitch(p.led, 2.5);
+  assert.equal(g.pixelWidth, 200);
+  assert.equal(g.pixelHeight, 200);
+  const rounded = geometryForPitch({ ...g, cabinetHeight: 250 }, 1.875);
+  assert.equal(rounded.pixelWidth, 267);
+  assert.equal(rounded.pixelHeight, 133);
+  assert.equal(p.ledPlanner.brightnessNits, null);
+  for (const pitch of [0, -1, Infinity, 101]) assert.throws(() => geometryForPitch(g, pitch));
+  p.led = g;
+  p.ledPlanner = { ...p.ledPlanner, requestedPitchMm: 2.5, brightnessNits: 1200, refreshHz: 3840 };
+  const saved = saveLedDesign(p, "P2.5 specification");
+  assert.equal(saved.ledDesigns[0]!.config.brightnessNits, 1200);
+  assert.equal(saved.ledDesigns[0]!.geometry.pixelWidth, 200);
+});

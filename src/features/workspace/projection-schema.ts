@@ -10,11 +10,18 @@ export const projectionProjectorSchema = z
     mount: title,
     nativeWidth: positive.int().max(32768),
     nativeHeight: positive.int().max(32768),
+    displayWidth: positive.int().max(32768).optional(),
+    displayHeight: positive.int().max(32768).optional(),
+    resolutionNote: z.string().max(500).optional(),
     lumens: positive.max(1000000).nullable().default(null),
     lensIncluded: z.boolean().default(false),
     source,
     verified: z.boolean().default(false),
   })
+  .refine(
+    (p) => (p.displayWidth === undefined) === (p.displayHeight === undefined),
+    "Provide both displayed width and height, or neither.",
+  )
   .refine(
     (p) => !p.verified || !!p.source.trim(),
     "Provide a specification source before marking a projector verified.",
@@ -54,6 +61,7 @@ export const projectionLibrarySchema = z
   });
 export const projectionConfigSchema = z
   .object({
+    rasterMode: z.enum(["native", "display"]).default("native"),
     units: z.enum(["metric", "imperial"]).default("metric"),
     kind: z.enum(["flat", "cylindrical"]).default("flat"),
     widthM: positive.max(1000).default(8),
@@ -70,6 +78,14 @@ export const projectionConfigSchema = z
     projectorId: title.nullable().default(null),
     lensId: title.nullable().default(null),
     includeScreen: z.boolean().default(false),
+    room: z
+      .object({
+        widthM: positive.max(1000),
+        depthM: positive.max(1000),
+        heightM: positive.max(1000),
+      })
+      .nullable()
+      .default(null),
   })
   .refine((c) => c.columns * c.rows <= 256, "Use 256 projectors or fewer.");
 export type ProjectionConfig = z.infer<typeof projectionConfigSchema>;

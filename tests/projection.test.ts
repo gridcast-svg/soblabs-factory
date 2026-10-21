@@ -253,3 +253,52 @@ test("validation rejects missing references, unsupported profiles and oversized 
   assert.equal(projectionConfigSchema.safeParse({ widthM: 1e-200 }).success, false);
   near(toMetres(fromMetres(8, "imperial"), "imperial"), 8);
 });
+
+test("curated Epson example uses sourced panel resolution, matched lenses and room geometry", async () => {
+  const { epsonRoomExample, epsonLibrary, isEmptyProjection } =
+    await import("../src/features/workspace/epson-catalogue");
+  const blank = blankProject();
+  assert.equal(isEmptyProjection(blank), true);
+  const p = epsonRoomExample(blank);
+  assert.equal(p.projectionLibrary.projectors.length, 3);
+  assert.equal(p.projectionLibrary.lenses.length, 9);
+  const plan = calculateProjection(p.projection, p.projectionLibrary);
+  assert.ok(plan.solution);
+  assert.equal(plan.projector!.model, "EB-PQ2010W");
+  assert.equal(plan.projector!.nativeWidth, 1920);
+  assert.equal(plan.projector!.displayWidth, 3840);
+  const partial = structuredClone(p.projectionLibrary);
+  delete partial.projectors[0]!.displayHeight;
+  assert.equal(projectionLibrarySchema.safeParse(partial).success, false);
+  assert.equal(plan.raster!.canvasWidth, 3840);
+  assert.equal(
+    calculateProjection({ ...p.projection, rasterMode: "native" }, p.projectionLibrary).raster!
+      .canvasWidth,
+    1920,
+  );
+  const alternateAspect = structuredClone(p.projectionLibrary);
+  alternateAspect.projectors.find((x) => x.id === p.projection.projectorId)!.nativeHeight = 1200;
+  assert.equal(calculateProjection(p.projection, alternateAspect).solution!.tileHeight, 2.25);
+  assert.equal(
+    calculateProjection({ ...p.projection, rasterMode: "native" }, alternateAspect).solution!
+      .tileHeight,
+    2.5,
+  );
+  assert.equal(plan.projector!.lumens, 10000);
+  assert.equal(plan.lens!.name, "ELPLM15");
+  assert.equal(plan.lens!.throwRatioMin, 1.52);
+  assert.equal(plan.lens!.throwRatioMax, 2.47);
+  assert.equal(plan.canApplyBom, true);
+  assert.match(projectionSvg(p.projection, plan, "plan"), /data-room-boundary/);
+  assert.equal(isEmptyProjection(p), false);
+  assert.equal(blank.projectionLibrary.projectors.length, 0);
+  const invalidRoom = calculateProjection(
+    { ...p.projection, room: { widthM: 2, depthM: 3, heightM: 2 } },
+    p.projectionLibrary,
+  );
+  assert.equal(invalidRoom.canApplyBom, false);
+  assert.ok(invalidRoom.diagnostics.some((x) => x.code === "screen-outside-room"));
+  assert.ok(
+    epsonLibrary.lenses.every((x) => x.source.startsWith("https://mediaserver.goepson.com/")),
+  );
+});
