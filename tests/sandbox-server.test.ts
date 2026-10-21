@@ -107,8 +107,8 @@ test("sandbox gateway protects pages and assets and verifies upstream health", a
       assert.equal(pdf.subarray(0, 4).toString(), "%PDF");
       assert.ok(pdf.length > 1000);
       await page.getByRole("button", { name: "Projection planner", exact: true }).click();
-      await page.getByRole("button", { name: "Load illustrative example", exact: true }).click();
-      await expect(page.locator("[data-projection-position]")).toHaveCount(2);
+      await page.getByRole("button", { name: "Use Epson room example", exact: true }).click();
+      await expect(page.locator("[data-projection-position]")).toHaveCount(1);
       await expect(
         page.getByRole("button", { name: "Update projection BOM", exact: true }),
       ).toBeDisabled();

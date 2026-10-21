@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Download, Maximize2, Plus, Save } from "lucide-react";
+import { ArrowRight, Download, Maximize2, Plus, Save, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
 import { useWorkspace } from "./store";
 import { Metric } from "./Bom";
@@ -29,8 +29,14 @@ import { uid, type ProjectionDesign } from "./model";
 import "./led-planner.css";
 import "./projection.css";
 
+import { usePlannerTheme } from "./planner-theme";
+import { epsonLibrary, epsonRoomExample, isEmptyProjection } from "./epson-catalogue";
+
 export function Projection() {
-  const { project: p, updateProject } = useWorkspace();
+  const { project: stored, updateProject } = useWorkspace();
+  const preview = isEmptyProjection(stored);
+  const p = preview ? epsonRoomExample(stored) : stored;
+  const { theme, toggleTheme } = usePlannerTheme();
   const c = p.projection,
     library = p.projectionLibrary;
   const plan = calculateProjection(c, library),
@@ -107,38 +113,21 @@ export function Projection() {
     toast.success("Equipment profile saved");
   }
   function example() {
-    const projectorId = uid(),
-      lensId = uid();
+    updateProject(epsonRoomExample(stored));
+  }
+  function addEpsonEquipment() {
     updateProject({
       ...p,
-      projection: projectionConfigSchema.parse({ projectorId, lensId }),
       projectionLibrary: {
         projectors: [
-          {
-            id: projectorId,
-            brand: "Illustrative",
-            model: "Synthetic WUXGA projector",
-            mount: "Synthetic example mount",
-            nativeWidth: 1920,
-            nativeHeight: 1200,
-            lumens: 20000,
-            lensIncluded: false,
-            source: "",
-            verified: false,
-          },
+          ...library.projectors,
+          ...epsonLibrary.projectors.filter(
+            (x) => !library.projectors.some((old) => old.id === x.id),
+          ),
         ],
         lenses: [
-          {
-            id: lensId,
-            name: "Synthetic 1.2–1.8 lens",
-            mount: "Synthetic example mount",
-            throwRatioMin: 1.2,
-            throwRatioMax: 1.8,
-            hShiftPct: 50,
-            vShiftPct: 50,
-            source: "",
-            verified: false,
-          },
+          ...library.lenses,
+          ...epsonLibrary.lenses.filter((x) => !library.lenses.some((old) => old.id === x.id)),
         ],
       },
     });
@@ -159,21 +148,22 @@ export function Projection() {
           Blend Calc · MIT
         </a>
       </div>
-      {!library.projectors.length && (
+      {(preview || !library.projectors.length) && (
         <div className="ws-callout ws-projection-intro">
           <span>
-            Add your projector and lens specifications, or explore an illustrative design. Example
-            data is unverified and cannot update the BOM.
+            {preview
+              ? "Epson room example · 8 × 10 × 3 m room, 4 × 2.25 m screen, 6.5 m throw. Preview only; editing or saving adopts this setup in your project."
+              : "Start with the Epson room example or add your own equipment profiles."}
           </span>
           <button className="ws-button" onClick={example}>
-            Load illustrative example
+            Use Epson room example
           </button>
         </div>
       )}
       <div className="ws-led-planner">
         <aside className="ws-led-controls ws-card">
           <div className="ws-led-tabs" role="tablist" aria-label="Projection planning controls">
-            {["Screen", "Array", "Equipment", "Throw"].map((label) => (
+            {["Screen", "Room", "Array", "Equipment", "Throw"].map((label) => (
               <button
                 key={label}
                 role="tab"
@@ -185,6 +175,46 @@ export function Projection() {
             ))}
           </div>
           <div role="tabpanel" aria-label={`${tab} controls`} className="ws-form-grid">
+            {tab === "Room" && (
+              <>
+                <label className="wide ws-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={c.room !== null}
+                    onChange={(e) =>
+                      patch({
+                        room: e.target.checked ? { widthM: 8, depthM: 10, heightM: 3 } : null,
+                      })
+                    }
+                  />
+                  Show room boundary in plan view
+                </label>
+                {c.room &&
+                  (
+                    [
+                      ["widthM", "Room width"],
+                      ["depthM", "Room depth"],
+                      ["heightM", "Room height"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <NumberField
+                      key={`${key}-${c.units}`}
+                      label={`${label} (${unit})`}
+                      value={fromMetres(c.room![key], c.units)}
+                      min={fromMetres(0.001, c.units)}
+                      max={fromMetres(1000, c.units)}
+                      onChange={(n) =>
+                        patch({ room: { ...c.room!, [key]: toMetres(n!, c.units) } })
+                      }
+                    />
+                  ))}
+                <p className="ws-led-help wide">
+                  Example assumes a centred screen on the front wall and on-axis projectors. Room
+                  dimensions are planning assumptions; ceiling placement, obstacles, and viewing
+                  positions require a site survey.
+                </p>
+              </>
+            )}
             {tab === "Screen" && (
               <>
                 <label>
@@ -288,6 +318,21 @@ export function Projection() {
             {tab === "Equipment" && (
               <>
                 <label className="wide">
+                  Planning raster
+                  <select
+                    aria-label="Planning raster"
+                    value={c.rasterMode}
+                    onChange={(e) => patch({ rasterMode: e.target.value as "native" | "display" })}
+                  >
+                    <option value="native">Native panel resolution</option>
+                    <option value="display">Displayed resolution / pixel-shift output</option>
+                  </select>
+                </label>
+                <p className="wide ws-led-help">
+                  {plan.projector?.resolutionNote ??
+                    "Native panel resolution is used when no displayed-resolution specification is available."}
+                </p>
+                <label className="wide">
                   Projector profile
                   <select
                     value={c.projectorId ?? ""}
@@ -386,9 +431,18 @@ export function Projection() {
           <section
             className={`ws-led-stage ws-projection-stage${expanded ? " is-expanded" : ""}`}
             aria-label="Projection drawing viewer"
+            data-theme={theme}
           >
             <div className="ws-led-stagebar">
               <strong>{p.name} / Projection</strong>
+              <button
+                className="ws-button ws-planner-theme"
+                aria-label={theme === "light" ? "Switch to dark canvas" : "Switch to light canvas"}
+                onClick={toggleTheme}
+              >
+                {theme === "light" ? <Moon size={14} /> : <Sun size={14} />}
+                {theme === "light" ? "Dark canvas" : "Paper canvas"}
+              </button>
               <button className="ws-button" onClick={() => setExpanded(!expanded)}>
                 <Maximize2 size={14} />
                 {expanded ? "Return to Factory" : "Expand projection planner"}
@@ -428,7 +482,7 @@ export function Projection() {
                 <div
                   className="ws-led-svg"
                   style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }}
-                  dangerouslySetInnerHTML={{ __html: projectionSvg(c, plan, view) }}
+                  dangerouslySetInnerHTML={{ __html: projectionSvg(c, plan, view, false, theme) }}
                 />
               ) : (
                 <div className="ws-empty">{plan.diagnostics[0]?.message}</div>
@@ -656,8 +710,33 @@ export function Projection() {
           <div>
             <h3>Projector and lens library</h3>
             <p>Editable profiles for this project, captured with each saved design.</p>
+            <p className="ws-led-help">
+              Epson PQ series: 1920 × 1080 panels, 3840 × 2160 on screen via 4K Crystal Motion.
+              Choose panel or displayed resolution under Equipment; the Epson room example uses the
+              displayed 4K raster. Lens ratios are PQ-series-specific; shift limits are
+              independently rated, not a coupled shift envelope.
+            </p>
+            <div className="ws-actions">
+              <a
+                className="ws-text-button"
+                href="/specs/epson/EB-PQ2010W-specification.pdf"
+                download
+              >
+                Download EB-PQ2010W specs
+              </a>
+              <a
+                className="ws-text-button"
+                href="/specs/epson/PQ-series-projectors-and-lenses.pdf"
+                download
+              >
+                Download PQ projector & lens guide
+              </a>
+            </div>
           </div>
           <div className="ws-actions">
+            <button className="ws-button" onClick={addEpsonEquipment}>
+              Add Epson equipment
+            </button>
             <button
               className="ws-button"
               onClick={() => setEditing({ kind: "projector", initial: null })}

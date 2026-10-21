@@ -31,6 +31,13 @@ export function ProjectionEquipment({
     mount: initial?.mount ?? mount,
     nativeWidth: projector?.nativeWidth ?? null,
     nativeHeight: projector?.nativeHeight ?? null,
+    ...(projector?.displayWidth
+      ? {
+          displayWidth: projector.displayWidth,
+          displayHeight: projector.displayHeight,
+          resolutionNote: projector.resolutionNote,
+        }
+      : {}),
     lumens: projector?.lumens ?? null,
     lensIncluded: projector?.lensIncluded ?? false,
     throwRatioMin: lens?.throwRatioMin ?? null,
@@ -40,8 +47,20 @@ export function ProjectionEquipment({
     source: initial?.source ?? "",
     verified: initial?.verified ?? false,
   });
-  const patch = (change: Partial<typeof draft>) =>
-    setDraft({ ...draft, ...change, verified: false });
+  const patch = (change: Partial<typeof draft>) => {
+    const next = { ...draft, ...change, verified: false };
+    if (
+      "brand" in change ||
+      "model" in change ||
+      "nativeWidth" in change ||
+      "nativeHeight" in change
+    ) {
+      delete next.displayWidth;
+      delete next.displayHeight;
+      delete next.resolutionNote;
+    }
+    setDraft(next);
+  };
   return (
     <div className="ws-modal-backdrop">
       <form

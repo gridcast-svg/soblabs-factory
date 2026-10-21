@@ -1,0 +1,8 @@
+# Epson source documents
+
+Retrieved from Epson's official product site on 2026-10-20. PDFs are unmodified manufacturer publications; Epson's notices remain in the documents. They are product references, not MIT-licensed application code.
+
+- **EB-PQ2010W specification sheet, CPD-64128R2**: [official PDF](https://mediaserver.goepson.com/ImConvServlet/imconv/38ad1942432d1d062c6373d64712f7db9bfa71b0/original?assetDescr=EB-PQ2010W_Projector_Specification_Sheet_CPD-64128R2.pdf). Source for 10,000 color/white lumens, 1920×1080 panels, 3840×2160 on-screen through 4K Crystal Motion, optional ELPLM15 (1.52–2.47), and its ±18% H / ±60% V shift limits. SHA-256: `3119203f884842c5399f77e69b188cbb073420a5d3ee9f5458d28f1a835293de`.
+- **PQ2000/PQ2200 Pro Series brochure, CPD-64228R1**: [official PDF](https://mediaserver.goepson.com/ImConvServlet/imconv/381cda380258a5980eec9191886db188dfd107da/original?assetDescr=Pro_Series_Projector_Brochure_EB-PQ2000_EB-PQ2200_CPD-64228R1_Single-Page_Final.pdf). Source for EB-PQ2008B (8,000 lm), EB-PQ2010W (10,000 lm), EB-PQ2213B (13,000 lm) and the PQ-series lens table. SHA-256: `2a8b89c032d684699b1b50d7c925fc464f0647b353904356caf74eac419d20c9`.
+
+The curated library includes nine conventional lens profiles. Ratios are specific to this PQ family and must not be reused for unrelated Epson panel sizes. Ultra-short-throw ELPLX02S is excluded because the planner does not model its special offset/installation geometry. Lens shift stays unknown for the eight lenses without shift limits in these documents. Independent H/V maxima do not describe the full coupled shift envelope. No pricing or inventory is inferred.

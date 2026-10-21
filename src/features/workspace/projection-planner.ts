@@ -69,6 +69,12 @@ export function calculateProjection(c: ProjectionConfig, library: ProjectionLibr
       !!nativeProjector &&
       !diagnostics.some((d) => d.severity === "error"),
   });
+  if (c.room) {
+    if (c.widthM > c.room.widthM || c.heightM > c.room.heightM)
+      add("screen-outside-room", "The screen exceeds the entered room width or height.");
+    if (c.throwDistanceM > c.room.depthM)
+      add("throw-outside-room", "The nominal throw exceeds the entered room depth.");
+  }
   if (!projector) {
     add(
       "no-projector",
@@ -106,8 +112,14 @@ export function calculateProjection(c: ProjectionConfig, library: ProjectionLibr
     id: projector.id,
     brand: projector.brand,
     model: projector.model,
-    nativeWidth: projector.nativeWidth,
-    nativeHeight: projector.nativeHeight,
+    nativeWidth:
+      c.rasterMode === "display"
+        ? (projector.displayWidth ?? projector.nativeWidth)
+        : projector.nativeWidth,
+    nativeHeight:
+      c.rasterMode === "display"
+        ? (projector.displayHeight ?? projector.nativeHeight)
+        : projector.nativeHeight,
     lumens: projector.lumens ?? 0,
     lensSeriesId: projector.mount,
   };
@@ -166,7 +178,7 @@ export function calculateProjection(c: ProjectionConfig, library: ProjectionLibr
       return result();
     }
   }
-  const aspect = projector.nativeWidth / projector.nativeHeight;
+  const aspect = nativeProjector.nativeWidth / nativeProjector.nativeHeight;
   for (let row = 0; row < c.rows; row++)
     for (const col of base.columns) {
       const offset = (row - (c.rows - 1) / 2) * base.tileHeight * (1 - base.vOverlap);

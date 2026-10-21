@@ -741,3 +741,68 @@
 .ws-boldcase .ws-av-frame .ws-av-stage-actions .ws-button:hover {
   background: #e5e0d5;
 }
+/* Native planning canvases share the AV editor's paper and ink palette. */
+.ws-boldcase .ws-led-stage[data-theme="light"] {
+  --ws-cyan: #365c30;
+  --ws-muted: #625f58;
+  --ws-text: #0e0e0c;
+  background: var(--ws-paper);
+  color: var(--ws-ink);
+  color-scheme: light;
+  border: 1px solid var(--ws-ink);
+  border-radius: 16px;
+}
+.ws-boldcase
+  .ws-led-stage[data-theme="light"]
+  :is(.ws-led-stagebar, .ws-led-routebar, .ws-projection-viewbar, .ws-led-stagefoot) {
+  border-color: var(--ws-line);
+}
+.ws-boldcase .ws-led-stage[data-theme="light"] .ws-button {
+  background: var(--ws-bone);
+  color: var(--ws-ink);
+  border-color: var(--ws-ink);
+}
+.ws-boldcase .ws-led-stage[data-theme="light"] .ws-button.primary {
+  background: var(--ws-lime);
+}
+.ws-boldcase .ws-led-stage[data-theme="light"] .ws-button:hover {
+  background: #e5e0d5;
+}
+.ws-boldcase .ws-led-stage[data-theme="light"] label {
+  color: #4a4842;
+}
+.ws-boldcase .ws-led-stage[data-theme="light"] :is(input, select, textarea, select option) {
+  background: var(--ws-bone);
+  color: var(--ws-ink);
+  border-color: #a39e91;
+  color-scheme: light;
+}
+.ws-boldcase .ws-led-stage[data-theme="light"] .ws-led-zoom button {
+  color: var(--ws-ink);
+  border-color: var(--ws-line);
+}
+.ws-boldcase .ws-led-stage[data-theme="light"] .ws-led-manual {
+  background: #e8ebdc;
+}
+.ws-boldcase .ws-led-stagebar strong {
+  margin-right: auto;
+}
+.ws-boldcase .ws-led-stagebar {
+  flex-wrap: wrap;
+}
+.ws-boldcase .ws-led-stage[data-theme].is-expanded {
+  border-radius: 0;
+  border: 0;
+}
+.ws-boldcase .ws-led-stage[data-theme="dark"] {
+  background: #151612;
+}
+.ws-boldcase .ws-led-stage[data-theme="dark"] :is(input, select, select option, .ws-button) {
+  background: #24261f;
+  color: #f2eee5;
+  border-color: #626555;
+}
+.ws-boldcase .ws-led-stage[data-theme="dark"] .ws-button.primary {
+  background: #d8ff3d;
+  color: #0e0e0c;
+}

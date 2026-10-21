@@ -97,6 +97,14 @@ export async function ledReportPdf(project: Project, saved?: LedDesign): Promise
     y += 2;
   }
   row("Cabinet", `${c.cabinetManufacturer} ${c.cabinetModel}`.trim() || "Model not specified");
+  row(
+    "Pixel pitch",
+    `Target ${c.requestedPitchMm ?? "Exact pixel mode"}; actual ${(g.cabinetWidth / g.pixelWidth).toFixed(3)} x ${(g.cabinetHeight / g.pixelHeight).toFixed(3)} mm`,
+  );
+  row(
+    "Rated brightness / refresh",
+    `${c.brightnessNits ?? "Not specified"} nits / ${c.refreshHz ?? "Not specified"} Hz; manufacturer specifications, not inferred from pitch.`,
+  );
   row("Specification source", c.specSource || "Not supplied");
   row("Processor", c.processorModel || "Model not specified");
   row(

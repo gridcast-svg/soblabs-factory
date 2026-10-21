@@ -101,6 +101,17 @@ export async function projectionPdf(p: Project, saved?: ProjectionDesign): Promi
     "Projector",
     `${plan.projector!.brand} ${plan.projector!.model}; ${plan.projector!.nativeWidth} x ${plan.projector!.nativeHeight} px; ${plan.projector!.lumens ?? "Unknown"} lumens. ${plan.projector!.verified ? "Source checked" : "UNVERIFIED"}`,
   );
+  if (plan.projector!.resolutionNote)
+    row(
+      "Panel / displayed resolution",
+      plan.projector!.resolutionNote! +
+        ` Planning raster: ${c.rasterMode}; ${plan.nativeProjector!.nativeWidth} x ${plan.nativeProjector!.nativeHeight} px.`,
+    );
+  if (c.room)
+    row(
+      "Room assumption",
+      `${c.room.widthM} x ${c.room.depthM} x ${c.room.heightM} m (width x depth x height); centred front-wall screen and on-axis projection.`,
+    );
   row("Projector source", plan.projector!.source || "Not supplied");
   row(
     "Lens",
